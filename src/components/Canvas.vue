@@ -1,0 +1,388 @@
+<template>
+  <div class="canvas-container">
+    <div class="preview-wrapper">
+      <!-- 外层容器用于控制缩放 -->
+      <div 
+        class="preview-scaling-container"
+        :style="{
+          width: selectedResource.size.split('x')[0] + 'px',
+          height: selectedResource.size.split('x')[1] + 'px',
+          transform: `scale(${scale})`,
+          transformOrigin: 'center center'
+        }"
+      >
+        <!-- 内层容器固定尺寸，包含所有内容 -->
+        <div class="preview-content">
+          <!-- 添加上传按钮 -->
+          <div 
+            v-if="!selectedResource.image"
+            class="upload-placeholder"
+            @click="$emit('click-upload')"
+          >
+            <div class="upload-icon">+</div>
+            <div class="upload-text">点击上传{{ mediaTypeText }}</div>
+          </div>
+
+          <!-- 底层：用户上传的图片或视频 -->
+          <div 
+            v-else 
+            class="image-container"
+          >
+            <template v-if="!isVideo">
+              <img 
+                :src="selectedResource.image" 
+                class="uploaded-image"
+                :style="selectedResource.previewConfig.imageStyle"
+              >
+            </template>
+            <template v-else>
+              <video
+                :src="selectedResource.image"
+                class="uploaded-video"
+                :style="selectedResource.previewConfig.imageStyle"
+                loop
+                muted
+                autoplay
+                playsinline
+              ></video>
+            </template>
+          </div>
+          
+          <!-- 中层：系统UI mockup -->
+          <img 
+            v-if="selectedResource.previewConfig.uiLayer.visible"
+            :src="selectedResource.mockupLayer" 
+            class="ui-mockup"
+            :style="selectedResource.previewConfig.uiLayer.style"
+          >
+
+          <!-- 自定义元素容器 -->
+          <div class="custom-elements-container">
+            <template v-if="selectedResource.previewConfig.customElements">
+              <div 
+                v-for="(element, key) in selectedResource.previewConfig.customElements" 
+                :key="key"
+                v-show="element.visible"
+                class="custom-element"
+                :style="element.style"
+              >
+                {{ getDisplayText(element) }}
+              </div>
+            </template>
+          </div>
+          
+          <!-- 顶层：手机框 -->
+          <img 
+            src="../assets/bazel.png" 
+            class="phone-bezel"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- 修改提示文字的位置 -->
+    <div class="preview-disclaimer">
+      <span>在 iPhone 16 Pro 上的效果，不同机型和系统可能导致效果和位置有所变化，仅供参考</span>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, onUpdated, computed } from 'vue'
+
+const props = defineProps({
+  selectedResource: {
+    type: Object,
+    required: true
+  }
+})
+
+const scale = ref(1)
+
+const isVideo = computed(() => {
+  // 如果有上传的资源，根据资源的 data URL 判断
+  if (props.selectedResource.image) {
+    // data URL 格式为: data:video/mp4;base64,... 或 data:image/jpeg;base64,...
+    try {
+      const mediaType = props.selectedResource.image.split(';')[0].split(':')[1]
+      console.log('Canvas mediaType:', mediaType)
+      return mediaType.startsWith('video/')
+    } catch (e) {
+      console.error('Error parsing media type:', e)
+      return false
+    }
+  }
+  return false
+})
+
+// 添加 mediaTypeText 计算属性
+const mediaTypeText = computed(() => {
+  const formats = props.selectedResource.specs.format
+  const hasImage = formats.some(format => ['JPG', 'PNG'].includes(format.toUpperCase()))
+  const hasVideo = formats.some(format => ['MP4', 'MOV'].includes(format.toUpperCase()))
+  
+  if (hasImage && hasVideo) {
+    return '图片或视频'
+  } else if (hasVideo) {
+    return '视频'
+  } else {
+    return '图片'
+  }
+})
+
+// 将相对单位转换为固定像素值
+const getAbsoluteStyle = (style) => {
+  const [width] = props.selectedResource.size.split('x').map(Number)
+  const baseSize = width / 100 // 1em 的基准尺寸
+  
+  const newStyle = { ...style }
+  
+  // 转换 em 单位为 px
+  if (newStyle.fontSize?.includes('em')) {
+    const emValue = parseFloat(newStyle.fontSize)
+    newStyle.fontSize = `${emValue * baseSize}px`
+  }
+  
+  // 转换 padding
+  if (newStyle.padding?.includes('em')) {
+    const [vPad, hPad] = newStyle.padding.split(' ').map(v => parseFloat(v))
+    newStyle.padding = `${vPad * baseSize}px ${hPad * baseSize}px`
+  }
+  
+  // 转换百分比为像素
+  if (newStyle.bottom?.includes('%')) {
+    const percent = parseFloat(newStyle.bottom)
+    newStyle.bottom = `${props.selectedResource.size.split('x')[1] * percent / 100}px`
+  }
+  
+  if (newStyle.top?.includes('%')) {
+    const percent = parseFloat(newStyle.top)
+    newStyle.top = `${props.selectedResource.size.split('x')[1] * percent / 100}px`
+  }
+  
+  if (newStyle.left?.includes('%')) {
+    const percent = parseFloat(newStyle.left)
+    newStyle.left = `${width * percent / 100}px`
+  }
+  
+  if (newStyle.right?.includes('%')) {
+    const percent = parseFloat(newStyle.right)
+    newStyle.right = `${width * percent / 100}px`
+  }
+
+  return newStyle
+}
+
+const updateScale = () => {
+  const container = document.querySelector('.preview-wrapper')
+  if (!container) return
+
+  const containerWidth = container.clientWidth
+  const containerHeight = container.clientHeight
+  const [width, height] = props.selectedResource.size.split('x').map(Number)
+
+  // 计算缩放比例时考虑容器的宽高比
+  const scaleX = containerWidth / width
+  const scaleY = containerHeight / height
+  
+  // 使用较小的缩放比例，确保完整显示并保持比例
+  scale.value = Math.min(scaleX, scaleY) * 0.8 // 留出 20% 边距
+}
+
+const getDisplayText = (element) => {
+  if (element.text.length > element.maxLength) {
+    return element.text.slice(0, element.maxLength) + '...'
+  }
+  return element.text
+}
+
+onMounted(() => {
+  updateScale()
+  window.addEventListener('resize', updateScale)
+})
+
+onUpdated(() => {
+  updateScale()
+})
+</script>
+
+<style scoped>
+.canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+  padding: 0;
+}
+
+.preview-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0 48px;
+  background-color: #f0f2f5;
+  position: relative;
+}
+
+/* 添加网格点效果 */
+.preview-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    circle at 10px 10px,
+    #e0e0e0 2px,
+    transparent 2px
+  );
+  background-size: 20px 20px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 添加一个微妙的内阴影效果 */
+.preview-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+}
+
+.preview-scaling-container {
+  position: relative;
+  transform-origin: center center;
+  flex-shrink: 0;
+}
+
+.preview-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 所有内容使用绝对定位和固定尺寸 */
+.image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.uploaded-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.uploaded-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.ui-mockup {
+  position: absolute;
+  top: 2.5%;
+  left: 11.1%;
+  width: 78%;
+  height: 95%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.phone-bezel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 添加这行，保持图片原比例 */
+  z-index: 3;
+}
+
+.custom-elements-container {
+  position: absolute;
+  top: 2.5%;
+  left: 11.1%;
+  width: 78%;
+  height: 95%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.custom-element {
+  position: absolute;
+  white-space: pre-wrap;
+  pointer-events: auto;
+}
+
+.preview-disclaimer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview-disclaimer span {
+  font-size: 12px;
+  color: #999999;
+  line-height: 1.4;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.upload-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 48px;
+  background: rgba(37, 180, 225, 0);
+  transition: all 0.2s;
+  z-index: 10;
+  min-width: 200px;
+  min-height: 160px;
+  justify-content: center;
+}
+
+.upload-placeholder:hover {
+  opacity: 0.5;
+}
+
+.upload-placeholder .upload-icon {
+  font-size: 5em;
+  color: #25b4e1;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.upload-placeholder .upload-text {
+  font-size: 3em;
+  color: #25b4e1;
+  white-space: nowrap;
+  font-weight: 500;
+}
+</style> 
