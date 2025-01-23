@@ -20,7 +20,7 @@ export const resourceTypes = [
       }
     },
     image: null,
-    mockupLayer: '../src/assets/mockups/splash_layer0.png',
+    mockupLayer: 'src/assets/mockups/splash_layer0.png',
     previewConfig: {
       imageStyle: {
         width: '81%',
@@ -78,7 +78,7 @@ export const resourceTypes = [
       ]
     },
     image: null,
-    mockupLayer: '../src/assets/mockups/feed_layer0.png',
+    mockupLayer: 'src/assets/mockups/feed_layer0.png',
     previewConfig: {
       imageStyle: {
         width: '100%',
@@ -159,7 +159,7 @@ export const resourceTypes = [
       ]
     },
     image: null,
-    mockupLayer: '../src/assets/mockups/banner_layer0.png',
+    mockupLayer: 'src/assets/mockups/banner_layer0.png',
     previewConfig: {
       imageStyle: {
         width: '100%',
