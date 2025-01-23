@@ -1,3 +1,7 @@
+import splashLayer from '../assets/mockups/splash_layer0.png'
+import feedLayer from '../assets/mockups/feed_layer0.png'
+import bannerLayer from '../assets/mockups/banner_layer0.png'
+
 export const resourceTypes = [
   {
     id: 1,
@@ -20,7 +24,7 @@ export const resourceTypes = [
       }
     },
     image: null,
-    mockupLayer: 'src/assets/mockups/splash_layer0.png',
+    mockupLayer: splashLayer,
     previewConfig: {
       imageStyle: {
         width: '81%',
@@ -78,7 +82,7 @@ export const resourceTypes = [
       ]
     },
     image: null,
-    mockupLayer: 'src/assets/mockups/feed_layer0.png',
+    mockupLayer: feedLayer,
     previewConfig: {
       imageStyle: {
         width: '100%',
@@ -159,7 +163,7 @@ export const resourceTypes = [
       ]
     },
     image: null,
-    mockupLayer: 'src/assets/mockups/banner_layer0.png',
+    mockupLayer: bannerLayer,
     previewConfig: {
       imageStyle: {
         width: '100%',
