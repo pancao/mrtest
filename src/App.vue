@@ -11,6 +11,7 @@ const router = useRouter()
 
 const resourceTypes = ref(resourceConfig)
 const selectedResource = ref(resourceTypes.value[0])
+const sidebarsHidden = ref(false)
 
 // 根据路由参数更新选中的资源
 watch(
@@ -47,12 +48,18 @@ const triggerUpload = () => {
     fileInput.click()
   }
 }
+
+const toggleSidebars = () => {
+  sidebarsHidden.value = !sidebarsHidden.value
+}
 </script>
 
 <template>
   <div class="app-container">
-    <!-- 左侧资源位选择栏 -->
-    <div class="left-sidebar">
+    <div 
+      class="left-sidebar"
+      :class="{ 'sidebar-hidden': sidebarsHidden }"
+    >
       <div class="sidebar-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <h2>资源位预览</h2>
@@ -65,16 +72,21 @@ const triggerUpload = () => {
       />
     </div>
 
-    <!-- 中间预览区域 -->
-    <div class="main-content">
+    <div 
+      class="main-content"
+      @click="toggleSidebars"
+    >
       <Canvas 
         :selected-resource="selectedResource"
         @click-upload="triggerUpload"
+        :sidebars-hidden="sidebarsHidden"
       />
     </div>
 
-    <!-- 右侧编辑栏 -->
-    <div class="right-sidebar">
+    <div 
+      class="right-sidebar"
+      :class="{ 'sidebar-hidden': sidebarsHidden }"
+    >
       <ImageUploader 
         :resourceType="selectedResource"
         @image-uploaded="handleImageUpload" 
@@ -116,6 +128,7 @@ const triggerUpload = () => {
   border: none;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.6s cubic-bezier(.46, 0.25, 0.16, 0.97);
 }
 
 .sidebar-header {
@@ -155,5 +168,14 @@ const triggerUpload = () => {
   border: none;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.6s cubic-bezier(.46, 0.25, 0.16, 0.97);
+}
+
+.left-sidebar.sidebar-hidden {
+  transform: translateX(-120%);
+}
+
+.right-sidebar.sidebar-hidden {
+  transform: translateX(120%);
 }
 </style>

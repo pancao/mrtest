@@ -137,7 +137,10 @@
     </div>
 
     <!-- 修改提示文字的位置 -->
-    <div class="preview-disclaimer">
+    <div 
+      class="preview-disclaimer"
+      :class="{ 'disclaimer-hidden': sidebarsHidden }"
+    >
       <span>在 iPhone 16 Pro 上的效果，不同机型和系统可能导致效果和位置有所变化，仅供参考</span>
     </div>
   </div>
@@ -150,6 +153,10 @@ const props = defineProps({
   selectedResource: {
     type: Object,
     required: true
+  },
+  sidebarsHidden: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -455,6 +462,14 @@ onUpdated(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.preview-disclaimer.disclaimer-hidden {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .preview-disclaimer span {

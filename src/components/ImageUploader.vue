@@ -903,18 +903,28 @@ const hasConfigurableItems = computed(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.section {
-  border-bottom: 1px solid #f5f5f5;
+  position: relative;
 }
 
 .section-header {
   border-bottom: 1px solid #f5f5f5;
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  z-index: 10;
 }
+
+/* 添加一个渐变阴影效果 */
+
 
 .section-content {
   padding: 16px;
+}
+
+/* 确保内容区域可以滚动 */
+.uploader-container > *:not(.section-header) {
+  flex-shrink: 0;
 }
 
 .section-title {
