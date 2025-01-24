@@ -69,7 +69,7 @@ export const resourceTypes = [
       },
       configLabels: {
         elements: {
-          title: '跳转按钮文案',
+          title: '跳转',
           button: '跳转按钮'
         }
       }
@@ -394,7 +394,7 @@ export const resourceTypes = [
           },
           top: {
             visible: true,
-            color: '#000000',
+            color: '#25b4e1',
             style: {
               top: '39%',
               height: '61%',
@@ -430,13 +430,103 @@ export const resourceTypes = [
         }
       },
       configLabels: {
-        gradients: {
-          title: '渐变设置',
-          top: {
-            color: '渐变颜色'
-          },
-          bottom: {
-            color: '底层渐变'
+        colors: {
+          title: '颜色设置',
+          main: '主题色'
+        },
+        elements: {
+          title: '播放信息',
+          coverImage: '封面图',
+          episodeTitle: '单集标题',
+          podcastName: '播客名称',
+          progressBar: '进度条'
+        }
+      },
+      customElements: {
+        coverImage: {
+          image: null,
+          visible: true,
+          editable: true,
+          style: {
+            position: 'absolute',
+            top: '46.5%',
+            left: '4%',
+            width: '123px',
+            height: '123px',
+            borderRadius: '23px',
+            objectFit: 'cover',
+            backgroundColor: '#25b4e1',
+            overflow: 'hidden',
+            boxShadow: '0px 5px 40px 0px rgba(0, 0, 0, 0.60)'
+          }
+        },
+        episodeTitle: {
+          text: '要试一试，才知道精神能引领身体走到哪里',
+          maxLength: 40,
+          visible: true,
+          editable: 'text-only',
+          style: {
+            position: 'absolute',
+            top: '52.8%',
+            left: '4.1%',
+            color: '#ffffff',
+            fontSize: '45px',
+            fontWeight: '700',
+            whiteSpace: 'pre-wrap',
+            textAlign: 'left',
+            width: '90%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            lineHeight: '149%',
+            WebkitLineClamp: 2,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical'
+          }
+        },
+        podcastName: {
+          text: '这是播客节目名称',
+          maxLength: 20,
+          visible: true,
+          editable: 'text-only',
+          style: {
+            position: 'absolute',
+            bottom: '38%',
+            left: '4%',
+            color: '#25b4e1',
+            fontSize: '40px',
+            fontWeight: '700',
+            whiteSpace: 'nowrap',
+            textAlign: 'center'
+          }
+        },
+        progressBar: {
+          image: `data:image/svg+xml;base64,${btoa(`<svg width="133" height="45" viewBox="0 0 133 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect y="37" width="5" height="8" rx="2.5" fill="#25b4e1"/>
+            <rect x="8" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="16" y="30" width="5" height="15" rx="2.5" fill="#25b4e1"/>
+            <rect x="24" y="26" width="5" height="19" rx="2.5" fill="#25b4e1"/>
+            <rect x="32" y="18" width="5" height="27" rx="2.5" fill="#25b4e1"/>
+            <rect x="40" y="17" width="5" height="28" rx="2.5" fill="#25b4e1"/>
+            <rect x="48" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="56" y="31" width="5" height="14" rx="2.5" fill="#25b4e1"/>
+            <rect x="64" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="72" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="80" y="28" width="5" height="17" rx="2.5" fill="#25b4e1"/>
+            <rect x="88" y="30" width="5" height="15" rx="2.5" fill="#25b4e1"/>
+            <rect x="96" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="104" y="23" width="5" height="22" rx="2.5" fill="#25b4e1"/>
+            <rect x="112" y="14" width="5" height="31" rx="2.5" fill="#25b4e1"/>
+            <rect x="120" y="4" width="5" height="41" rx="2.5" fill="#25b4e1"/>
+            <rect x="128" width="5" height="45" rx="2.5" fill="#25b4e1"/>
+          </svg>`)}`,
+          visible: true,
+          editable: false,
+          style: {
+            position: 'absolute',
+            bottom: '28%',
+            left: '-17.7%',
+            width: '80%',
+            height: '100px'
           }
         }
       }
@@ -509,7 +599,7 @@ export const resourceTypes = [
           },
           top: {
             visible: true,
-            color: '#000000',
+            color: '#25b4e1',
             style: {
               top: '39%',
               height: '61%',
@@ -545,13 +635,103 @@ export const resourceTypes = [
         }
       },
       configLabels: {
-        gradients: {
-          title: '渐变设置',
-          top: {
-            color: '渐变颜色'
-          },
-          bottom: {
-            color: '底层渐变'
+        colors: {
+          title: '颜色设置',
+          main: '主题色'
+        },
+        elements: {
+          title: '播放信息',
+          coverImage: '封面图',
+          episodeTitle: '单集标题',
+          podcastName: '播客名称',
+          progressBar: '进度条'
+        }
+      },
+      customElements: {
+        coverImage: {
+          image: null,
+          visible: true,
+          editable: true,
+          style: {
+            position: 'absolute',
+            top: '45.5%',
+            left: '2%',
+            width: '123px',
+            height: '123px',
+            borderRadius: '23px',
+            objectFit: 'cover',
+            backgroundColor: '#25b4e1',
+            overflow: 'hidden',
+            boxShadow: '0px 5px 40px 0px rgba(0, 0, 0, 0.60)'
+          }
+        },
+        episodeTitle: {
+          text: '对话鲁豫：不仅热搜看不懂，连菜单也看不懂了',
+          maxLength: 30,
+          visible: true,
+          editable: 'text-only',
+          style: {
+            position: 'absolute',
+            top: '53.7%',
+            left: '2%',
+            color: '#ffffff',
+            fontSize: '45px',
+            fontWeight: '700',
+            whiteSpace: 'pre-wrap',
+            textAlign: 'left',
+            width: '90%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            lineHeight: '149%',
+            WebkitLineClamp: 2,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical'
+          }
+        },
+        podcastName: {
+          text: '这是播客节目名称',
+          maxLength: 20,
+          visible: true,
+          editable: 'text-only',
+          style: {
+            position: 'absolute',
+            bottom: '34.8%',
+            left: '2.1%',
+            color: '#25b4e1',
+            fontSize: '40px',
+            fontWeight: '600',
+            whiteSpace: 'nowrap',
+            textAlign: 'center'
+          }
+        },
+        progressBar: {
+          image: `data:image/svg+xml;base64,${btoa(`<svg width="133" height="45" viewBox="0 0 133 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect y="37" width="5" height="8" rx="2.5" fill="#25b4e1"/>
+            <rect x="8" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="16" y="30" width="5" height="15" rx="2.5" fill="#25b4e1"/>
+            <rect x="24" y="26" width="5" height="19" rx="2.5" fill="#25b4e1"/>
+            <rect x="32" y="18" width="5" height="27" rx="2.5" fill="#25b4e1"/>
+            <rect x="40" y="17" width="5" height="28" rx="2.5" fill="#25b4e1"/>
+            <rect x="48" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="56" y="31" width="5" height="14" rx="2.5" fill="#25b4e1"/>
+            <rect x="64" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="72" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="80" y="28" width="5" height="17" rx="2.5" fill="#25b4e1"/>
+            <rect x="88" y="30" width="5" height="15" rx="2.5" fill="#25b4e1"/>
+            <rect x="96" y="29" width="5" height="16" rx="2.5" fill="#25b4e1"/>
+            <rect x="104" y="23" width="5" height="22" rx="2.5" fill="#25b4e1"/>
+            <rect x="112" y="14" width="5" height="31" rx="2.5" fill="#25b4e1"/>
+            <rect x="120" y="4" width="5" height="41" rx="2.5" fill="#25b4e1"/>
+            <rect x="128" width="5" height="45" rx="2.5" fill="#25b4e1"/>
+          </svg>`)}`,
+          visible: true,
+          editable: false,
+          style: {
+            position: 'absolute',
+            bottom: '22.1%',
+            left: '-18.8%',
+            width: '80%',
+            height: '100px'
           }
         }
       }

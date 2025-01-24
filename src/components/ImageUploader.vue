@@ -94,53 +94,23 @@
       class="section"
     >
       <div class="section-content">
-        <!-- 渐变颜色配置 -->
-        <template v-if="resourceType.previewConfig.middleLayer?.gradients">
-          <div class="section-title">{{ getConfigLabel('section', 'gradients') }}</div>
+        <!-- 颜色配置（仅限播客画布和动态播客画布） -->
+        <template 
+          v-if="resourceType.id === 5 || resourceType.id === 6"
+        >
+          <div class="section-title">{{ getConfigLabel('section', 'colors') }}</div>
           
-          <!-- 遮罩渐变配置（仅限3号资源位） -->
-          <template v-if="resourceType.id === 3">
-            <div class="editor-item">
-              <label>{{ getConfigLabel('gradient', 'mask').color }}</label>
-              <div class="color-preview">
-                <input 
-                  :value="resourceType.previewConfig.middleLayer.gradients.mask.color"
-                  type="color"
-                  class="color-input"
-                  @input="handleMaskColorChange"
-                >
-              </div>
-            </div>
-            
-            <div class="editor-item">
-              <label>
-                <span>{{ getConfigLabel('gradient', 'mask').opacity }}</span>
-              </label>
+          <div class="editor-item">
+            <label>主题色</label>
+            <div class="color-preview">
               <input 
-                :value="resourceType.previewConfig.middleLayer.style.opacity"
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                @input="handleMaskOpacityChange"
+                :value="themeColor"
+                type="color"
+                class="color-input"
+                @input="handleThemeColorChange"
               >
             </div>
-          </template>
-          
-          <!-- 其他资源位的渐变配置 -->
-          <template v-if="resourceType.id === 5 || resourceType.id === 6">
-            <div class="editor-item">
-              <label>{{ getConfigLabel('gradient', 'top').color }}</label>
-              <div class="color-preview">
-                <input 
-                  :value="resourceType.previewConfig.middleLayer.gradients.top.color"
-                  type="color"
-                  class="color-input"
-                  @input="handleGradientColorChange"
-                >
-              </div>
-            </div>
-          </template>
+          </div>
         </template>
 
         <!-- 自定义元素配置 -->
@@ -157,7 +127,10 @@
           >
             <div class="element-header" v-if="element.editable !== false">
               <span class="element-title">{{ getConfigLabel('element', key) }}</span>
-              <label class="toggle-switch" v-if="element.editable !== 'text-only'">
+              <label 
+                class="toggle-switch" 
+                v-if="element.editable !== 'text-only' && ![5, 6].includes(resourceType.id)"
+              >
                 <input
                   type="checkbox"
                   v-model="element.visible"
@@ -167,8 +140,41 @@
             </div>
             
             <template v-if="element.visible && element.editable !== false">
+              <!-- 图片上传 -->
+              <div 
+                v-if="element.image !== undefined && element.editable"
+                class="editor-item"
+                :data-element="key"
+              >
+                <div 
+                  class="cover-upload"
+                  @click="() => triggerCoverUpload(key)"
+                  @dragover.prevent
+                  @drop.prevent="handleCoverDrop"
+                >
+                  <input 
+                    type="file"
+                    :ref="el => coverInputs[key] = el"
+                    style="display: none"
+                    accept="image/*"
+                    @change="handleCoverChange"
+                  >
+                  <template v-if="element.image">
+                    <img 
+                      :src="element.image" 
+                      class="cover-preview"
+                    >
+                  </template>
+                  <template v-else>
+                    <div class="upload-placeholder">
+                      <span>{{ getConfigLabel('element', key) }}</span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
               <!-- 文本编辑 -->
-              <div class="editor-item">
+              <div class="editor-item" v-if="element.text !== undefined">
                 <label>
                   <span>文本内容</span>
                   <span 
@@ -187,7 +193,7 @@
               </div>
 
               <!-- 背景色和透明度配置 -->
-              <div class="editor-item" v-if="element.style.backgroundColor && element.editable !== 'text-only'">
+              <div class="editor-item" v-if="element.style.backgroundColor && element.editable !== 'text-only' && key !== 'coverImage'">
                 <label>
                   <span>背景颜色</span>
                   <span class="value">{{ Math.round(backgroundOpacity * 100) }}%</span>
@@ -213,7 +219,7 @@
               </div>
 
               <!-- 文字颜色配置 -->
-              <div class="editor-item" v-if="element.editable !== 'text-only'">
+              <div class="editor-item" v-if="element.editable !== 'text-only' && key !== 'coverImage'">
                 <label>文字颜色</label>
                 <div class="color-preview">
                   <input 
@@ -298,7 +304,9 @@ const backgroundOpacity = computed({
     
     if (element?.style.backgroundColor) {
       const hex = rgbaToHex(element.style.backgroundColor)
-      element.style.backgroundColor = hexToRgba(hex, value)
+      // 确保透明度最小为 0.1
+      const opacity = Math.max(0.1, value)
+      element.style.backgroundColor = hexToRgba(hex, opacity)
     }
   }
 })
@@ -370,6 +378,13 @@ watch(
       // 更新圆角滑块
       const radiusRange = document.querySelector('.editor-item input[type="range"]')
       if (radiusRange) {
+        // 从当前按钮样式中提取圆角值
+        const button = newResource.previewConfig.customElements?.button
+        if (button?.style.borderRadius) {
+          const radius = parseInt(button.style.borderRadius) || 8
+          buttonRadius.value = radius
+          radiusRange.value = radius
+        }
         updateRangeProgress({ target: radiusRange })
       }
     })
@@ -558,6 +573,8 @@ const getConfigLabel = (type, key) => {
       return labels.elements?.[key] || key
     case 'gradient':
       return labels.gradients?.[key] || key
+    case 'colors':
+      return labels.colors?.[key] || key
     case 'section':
       return labels[key]?.title || key
     default:
@@ -574,6 +591,22 @@ const updateRangeProgress = (event) => {
   const max = parseFloat(range.max)
   const progress = ((value - min) / (max - min)) * 100
   range.style.setProperty('--range-progress', `${progress}%`)
+
+  // 如果是颜色选择器的滑块，更新颜色透明度
+  if (range.parentElement?.classList.contains('color-picker')) {
+    const colorInput = range.parentElement.querySelector('input[type="color"]')
+    if (colorInput) {
+      const hex = colorInput.value
+      const rgb = hexToRgb(hex)
+      const minOpacity = 0.1
+      const opacity = Math.max(minOpacity, value)
+      range.style.background = `linear-gradient(
+        to right,
+        rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity}) ${progress}%,
+        rgba(0, 0, 0, 0.1) ${progress}%
+      )`
+    }
+  }
 }
 
 const updateButtonRadius = (element) => {
@@ -581,7 +614,12 @@ const updateButtonRadius = (element) => {
   updateRangeProgress(event)
 }
 
+// 检查文本是否超出长度限制
 const isTextExceeded = (element) => {
+  // 如果元素没有 text 属性，返回 false
+  if (!element.text) {
+    return false
+  }
   return element.text.length > element.maxLength
 }
 
@@ -605,6 +643,10 @@ onMounted(() => {
   const radiusRange = document.querySelector('input[type="range"][max="20"]')
   if (radiusRange) {
     updateRangeProgress({ target: radiusRange })
+  }
+
+  if (props.resourceType.id === 5) {
+    updateProgressBarColor(themeColor.value)
   }
 })
 
@@ -638,14 +680,32 @@ const handleColorChange = (element, event, type) => {
   if (type === 'background') {
     const currentAlpha = backgroundOpacity.value
     element.style.backgroundColor = hexToRgba(hex, currentAlpha)
-    // 更新滑块进度
+    // 更新滑块进度和颜色
     const range = document.querySelector('.color-picker input[type="range"]')
     if (range) {
+      // 设置滑块的背景渐变色为选中的颜色
+      const rgb = hexToRgb(hex)
+      const progress = parseFloat(range.value)
+      const minOpacity = 0.1
+      const opacity = Math.max(minOpacity, progress)
+      range.style.background = `linear-gradient(
+        to right,
+        rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity}) var(--range-progress, 0%),
+        rgba(0, 0, 0, 0.1) var(--range-progress, 0%)
+      )`
       updateRangeProgress({ target: range })
     }
   } else if (type === 'text') {
     element.style.color = hex
   }
+}
+
+// 添加 hexToRgb 辅助函数
+const hexToRgb = (hex) => {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return { r, g, b }
 }
 
 // 修改获取颜色值函数
@@ -722,18 +782,10 @@ const defaultValues = {
 const exportConfig = () => {
   let configText = `${props.resourceType.name} 配置：\n\n`
 
-  // 如果有渐变配置，先导出渐变配置
-  if (props.resourceType.previewConfig.middleLayer?.gradients) {
-    if (props.resourceType.id === 3) {
-      // 滑动开屏的遮罩渐变
-      configText += `${getConfigLabel('section', 'gradients')}：\n`
-      configText += `- ${getConfigLabel('gradient', 'mask').color}：${props.resourceType.previewConfig.middleLayer.gradients.mask.color}\n`
-      configText += `- ${getConfigLabel('gradient', 'mask').opacity}：${Math.round(props.resourceType.previewConfig.middleLayer.style.opacity * 100)}%\n\n`
-    } else if (props.resourceType.id === 5 || props.resourceType.id === 6) {
-      // 播客画布的渐变
-      configText += `${getConfigLabel('section', 'gradients')}：\n`
-      configText += `- ${getConfigLabel('gradient', 'top').color}：${props.resourceType.previewConfig.middleLayer.gradients.top.color}\n\n`
-    }
+  // 如果是播客画布，先导出主题色
+  if (props.resourceType.id === 5) {
+    configText += `颜色设置：\n`
+    configText += `- 主题色：${themeColor.value}\n\n`
   }
 
   // 只有当存在 customElements 时才处理
@@ -765,48 +817,83 @@ const exportConfig = () => {
   })
 }
 
-// 监听资源类型变化，重新初始化滑块状态
-watch(
-  () => props.resourceType,
-  (newResource) => {
-    // 从当前按钮样式中提取圆角值
-    const button = newResource.previewConfig.customElements?.button
-    if (button?.style.borderRadius) {
-      const radius = parseInt(button.style.borderRadius) || 8
-      buttonRadius.value = radius
-      
-      // 更新滑块进度
-      nextTick(() => {
-        const range = document.querySelector('.editor-item input[type="range"]')
-        if (range) {
-          range.value = radius
-          updateRangeProgress({ target: range })
-        }
-      })
-    }
-  },
-  { immediate: true }
-)
+// 主题色计算属性
+const themeColor = computed(() => {
+  return props.resourceType.previewConfig.middleLayer.gradients.top.color
+})
 
-const handleGradientColorChange = (event) => {
-  props.resourceType.previewConfig.middleLayer.gradients.top.color = event.target.value
+// 处理主题色变化
+const handleThemeColorChange = (event) => {
+  const color = event.target.value
+  // 更新渐变颜色
+  props.resourceType.previewConfig.middleLayer.gradients.top.color = color
+  // 更新播客名称文字颜色
+  props.resourceType.previewConfig.customElements.podcastName.style.color = color
+  // 更新进度条 SVG 颜色
+  updateProgressBarColor(color)
 }
 
-const handleMaskColorChange = (event) => {
-  props.resourceType.previewConfig.middleLayer.gradients.mask.color = event.target.value
+// 更新进度条 SVG 颜色
+const updateProgressBarColor = (color) => {
+  // 获取 SVG 内容
+  fetch('/progressbar.svg')
+    .then(response => response.text())
+    .then(svgText => {
+      // 替换所有 fill 属性的颜色
+      const updatedSvg = svgText.replace(/fill="#[A-Fa-f0-9]{3,6}"/g, `fill="${color}"`)
+      // 转换为 base64
+      const base64Svg = btoa(updatedSvg)
+      // 更新 progressBar 的图片源
+      props.resourceType.previewConfig.customElements.progressBar.image = 
+        `data:image/svg+xml;base64,${base64Svg}`
+    })
+    .catch(error => {
+      console.error('Error updating SVG color:', error)
+    })
 }
 
-const handleMaskOpacityChange = (event) => {
-  props.resourceType.previewConfig.middleLayer.style.opacity = parseFloat(event.target.value)
-  updateRangeProgress(event)
+const coverInputs = ref({})
+
+const triggerCoverUpload = (key) => {
+  coverInputs.value[key]?.click()
+}
+
+const handleCoverChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    processCoverFile(file, event)
+    event.target.value = ''
+  }
+}
+
+const handleCoverDrop = (event) => {
+  const file = event.dataTransfer.files[0]
+  if (file) {
+    processCoverFile(file, event)
+  }
+}
+
+const processCoverFile = (file, event) => {
+  if (!file.type.startsWith('image/')) {
+    showToast('请上传图片文件')
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const element = event.target.closest('.editor-item')
+      .getAttribute('data-element')
+    props.resourceType.previewConfig.customElements[element].image = e.target.result
+  }
+  reader.readAsDataURL(file)
 }
 
 // 判断是否有可配置项
 const hasConfigurableItems = computed(() => {
   const { previewConfig } = props.resourceType
   return (
-    previewConfig.customElements && Object.keys(previewConfig.customElements).length > 0 ||
-    previewConfig.middleLayer?.gradients
+    (previewConfig.customElements && Object.keys(previewConfig.customElements).length > 0) ||
+    [5, 6].includes(props.resourceType.id) // 播客画布和动态播客画布始终显示导出按钮
   )
 })
 </script>
@@ -819,11 +906,11 @@ const hasConfigurableItems = computed(() => {
 }
 
 .section {
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .section-header {
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .section-content {
@@ -834,22 +921,23 @@ const hasConfigurableItems = computed(() => {
   font-size: 14px;
   font-weight: 500;
   color: #333333;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  margin-top: 8px;
 }
 
 .description-box {
   margin-bottom: 16px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #f5f5f5;
   padding-bottom: 16px;
 }
 
 .element-editor {
-  padding: 16px 0;
-  border-bottom: 1px solid #e6e6e6;
+  padding: 16px 0 8px 0;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .element-editor:last-child {
-  border-bottom: none;
+  border: none;
   padding-bottom: 0;
 }
 
@@ -873,7 +961,7 @@ const hasConfigurableItems = computed(() => {
 .upload-area {
   margin: 16px 0;
   border: 1px dashed #d9d9d9;
-  border-radius: 6px;
+  border-radius: 10px;
   background: #fafafa;
   cursor: pointer;
   transition: all 0.2s;
@@ -885,7 +973,8 @@ const hasConfigurableItems = computed(() => {
 }
 
 .upload-content {
-  padding: 24px;
+  padding-top: 145px;
+  padding-bottom: 14px;
   text-align: center;
 }
 
@@ -901,19 +990,33 @@ const hasConfigurableItems = computed(() => {
 }
 
 .preview-image {
-  width: 100%;
-  max-height: 160px;
+  width: auto;
+  max-height: 130px;
   object-fit: contain;
   margin-bottom: 8px;
-  border-radius: 4px;
+  border-radius: 11px;
+  position: absolute;
+  border: 3px solid #ffffff;
+  overflow: hidden;
+  margin-top: -132px;
+  margin-left: 17px;
+  transform: rotate(-3deg);
+  box-shadow: 0 0 24px #00000024;
 }
 
 .preview-video {
-  width: 100%;
-  max-height: 160px;
+  width: auto;
+  max-height: 130px;
   object-fit: contain;
   margin-bottom: 8px;
-  border-radius: 4px;
+  border-radius: 11px;
+  position: absolute;
+  border: 3px solid #ffffff;
+  overflow: hidden;
+  margin-top: -132px;
+  margin-left: 17px;
+  transform: rotate(3deg);
+  box-shadow: 0 0 24px #00000024;
 }
 
 .element-header {
@@ -939,8 +1042,9 @@ const hasConfigurableItems = computed(() => {
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: #666666;
-  margin-bottom: 8px;
+  color: #a7a7a7;
+  margin-bottom: 5px;
+  font-weight: 800;
 }
 
 .editor-item label .value {
@@ -950,12 +1054,13 @@ const hasConfigurableItems = computed(() => {
 
 .editor-item input[type="text"] {
   width: 100%;
-  height: 28px;
+  height: 32px;
   padding: 0 8px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
   font-size: 13px;
   transition: all 0.2s;
+  background: #fafafa;
 }
 
 .editor-item input[type="text"]:hover {
@@ -965,7 +1070,7 @@ const hasConfigurableItems = computed(() => {
 .editor-item input[type="text"]:focus {
   border-color: #25b4e1;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(37, 180, 225, 0.1);
+  box-shadow: 0 0 0 1px rgba(37, 180, 225, 1);
 }
 
 .color-picker {
@@ -978,17 +1083,17 @@ const hasConfigurableItems = computed(() => {
   position: relative;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #fff;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
   flex-shrink: 0;
+  border: 1px solid #00000012;
 }
 
 .color-preview:hover {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .color-input {
@@ -1021,14 +1126,15 @@ input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
+  height: 22px;
+  border-radius: 6px;
   outline: none;
   margin: 8px 0;
   padding: 0;
   cursor: pointer;
   transition: all 0.2s ease;
   background: rgba(0, 0, 0, 0.1); /* 默认背景色 */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 /* 隐藏默认滑块手柄 */
@@ -1056,21 +1162,15 @@ input[type="range"]::-moz-range-thumb {
 
 /* 悬停和激活状态 */
 .editor-item input[type="range"]:hover {
-  background: linear-gradient(
-    to right,
-    #4cc3e9 var(--range-progress, 0%),
-    rgba(0, 0, 0, 0.15) var(--range-progress, 0%)
-  );
+  opacity: 0.8;
   transform: scaleY(1.1);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .editor-item input[type="range"]:active {
-  background: linear-gradient(
-    to right,
-    #1a9bc4 var(--range-progress, 0%),
-    rgba(0, 0, 0, 0.1) var(--range-progress, 0%)
-  );
+  opacity: 1;
   transform: scaleY(1.2);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .toast {
@@ -1114,7 +1214,7 @@ input[type="range"]::-moz-range-thumb {
 .section-header h4 {
   margin: 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 900;
   color: #333333;
 }
 
@@ -1251,10 +1351,11 @@ input:checked + .toggle-slider:before {
 .export-button {
   padding: 6px 12px;
   font-size: 12px;
-  color: #25b4e1;
-  background: rgba(37, 180, 225, 0.1);
-  border: 1px solid rgba(37, 180, 225, 0.2);
-  border-radius: 4px;
+  color: white;
+  background: #25b4e1;
+  border: none;
+  font-weight: 800;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -1284,5 +1385,43 @@ input:checked + .toggle-slider:before {
 
 .top-gradient {
   z-index: 2;
+}
+
+.cover-upload {
+  width: 100%;
+  height: 60px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.cover-upload:hover {
+  border-color: #25b4e1;
+  background: #f0f9fc;
+}
+
+.cover-preview {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.upload-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-placeholder span {
+  font-size: 13px;
+  color: #666666;
 }
 </style> 

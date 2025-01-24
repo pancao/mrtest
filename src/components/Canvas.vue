@@ -102,7 +102,22 @@
                   class="custom-element"
                   :style="element.style"
                 >
-                  {{ getDisplayText(element) }}
+                  <!-- 图片元素 -->
+                  <template v-if="element.image !== undefined">
+                    <img 
+                      v-if="element.image"
+                      :src="element.image"
+                      :style="{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: element.style.objectFit || 'contain'
+                      }"
+                    />
+                  </template>
+                  <!-- 文本元素 -->
+                  <template v-else>
+                    {{ element.text }}
+                  </template>
                 </div>
               </template>
             </div>
@@ -299,60 +314,35 @@ onUpdated(() => {
 </script>
 
 <style scoped>
-.canvas-container {
+.main-container {
   width: 100%;
   height: 100%;
   position: relative;
-  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  padding: 0;
 }
 
 .preview-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  padding: 0 48px;
-  background-color: #f0f2f5;
   position: relative;
-  -webkit-transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
-  will-change: transform;
-}
-
-/* 添加网格点效果 */
-.preview-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  background-image: radial-gradient(
-    circle at 10px 10px,
-    #e0e0e0 2px,
-    transparent 2px
-  );
-  background-size: 20px 20px;
-  opacity: 0.5;
-  pointer-events: none;
+  overflow: hidden;
 }
 
-/* 添加一个微妙的内阴影效果 */
-.preview-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.05);
-  pointer-events: none;
-}
 
 .preview-scaling-container {
   position: relative;
@@ -467,10 +457,12 @@ onUpdated(() => {
   min-width: 200px;
   min-height: 160px;
   justify-content: center;
+  opacity: 0;
 }
 
 .upload-placeholder:hover {
   opacity: 0.5;
+  opacity: 0;
 }
 
 .upload-placeholder .upload-icon {

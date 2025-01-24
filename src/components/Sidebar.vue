@@ -62,7 +62,7 @@ const handleSelect = (resource) => {
   align-items: center;
   padding: 8px;
   margin-bottom: 4px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   color: #333333;

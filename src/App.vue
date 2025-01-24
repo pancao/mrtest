@@ -54,7 +54,10 @@ const triggerUpload = () => {
     <!-- 左侧资源位选择栏 -->
     <div class="left-sidebar">
       <div class="sidebar-header">
-        <h2>资源位</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2>资源位预览</h2>
+          <span style="font-size: 10px; color: #999; background: #f5f5f5; border-radius: 3px; padding: 3px 6px;">BETA</span>
+        </div>
       </div>
       <Sidebar 
         :resourceTypes="resourceTypes" 
@@ -89,47 +92,68 @@ const triggerUpload = () => {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #ffffff;
+  background-color: #f5f5f5;
+  padding: 16px;
+  gap: 16px;
+  /* 添加点状纹理效果 */
+  background-image: radial-gradient(
+    circle at 10px 10px,
+    #e0e0e0 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
 }
 
 .left-sidebar {
   width: 240px;
   height: 100%;
-  background: #ffffff;
-  border-right: 1px solid #e6e6e6;
+  background: rgba(255, 255, 255, 0.8);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 16px 16px 0 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .sidebar-header h2 {
   color: #333333;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: bold;
   margin: 0;
 }
 
 .main-content {
   flex: 1;
   position: relative;
-  background-color: #f5f5f5;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border-radius: 16px;
 }
 
 .right-sidebar {
   width: 300px;
   height: 100%;
-  background: #ffffff;
-  border-left: 1px solid #e6e6e6;
+  background: rgba(255, 255, 255, 0.8);
   overflow-y: auto;
   flex-shrink: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 </style>
