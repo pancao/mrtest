@@ -63,7 +63,10 @@ export const resourceTypes = [
             left: '50%',
             transform: 'translateX(-50%)',
             fontSize: '2.43em',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '80%'
           }
         }
       },
@@ -195,7 +198,10 @@ export const resourceTypes = [
             whiteSpace: 'nowrap',
             textAlign: 'center',
             pointerEvents: 'none',
-            textShadow: '0px 0px 3px rgba(0, 0, 0, 0.25)'
+            textShadow: '0px 0px 3px rgba(0, 0, 0, 0.25)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '80%'
           }
         },
         subTitle: {
@@ -214,7 +220,10 @@ export const resourceTypes = [
             whiteSpace: 'nowrap',
             textAlign: 'center',
             pointerEvents: 'none',
-            textShadow: '0px 0px 3px rgba(0, 0, 0, 0.25)'
+            textShadow: '0px 0px 3px rgba(0, 0, 0, 0.25)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '80%'
           }
         }
       }
@@ -480,7 +489,8 @@ export const resourceTypes = [
             lineHeight: '149%',
             WebkitLineClamp: 2,
             display: '-webkit-box',
-            WebkitBoxOrient: 'vertical'
+            WebkitBoxOrient: 'vertical',
+            userSelect: 'none'
           }
         },
         podcastName: {
@@ -496,7 +506,8 @@ export const resourceTypes = [
             fontSize: '40px',
             fontWeight: '700',
             whiteSpace: 'nowrap',
-            textAlign: 'center'
+            textAlign: 'center',
+            userSelect: 'none'
           }
         },
         progressBar: {
@@ -685,7 +696,8 @@ export const resourceTypes = [
             lineHeight: '149%',
             WebkitLineClamp: 2,
             display: '-webkit-box',
-            WebkitBoxOrient: 'vertical'
+            WebkitBoxOrient: 'vertical',
+            userSelect: 'none'
           }
         },
         podcastName: {
@@ -701,7 +713,8 @@ export const resourceTypes = [
             fontSize: '40px',
             fontWeight: '600',
             whiteSpace: 'nowrap',
-            textAlign: 'center'
+            textAlign: 'center',
+            userSelect: 'none'
           }
         },
         progressBar: {

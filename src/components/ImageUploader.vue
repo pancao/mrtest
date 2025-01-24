@@ -964,7 +964,8 @@ const hasConfigurableItems = computed(() => {
   border-radius: 10px;
   background: #fafafa;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
 }
 
 .upload-area:hover {
@@ -972,16 +973,27 @@ const hasConfigurableItems = computed(() => {
   background: #f0f9fc;
 }
 
+.upload-area:hover .preview-image {
+  transform: rotate(-9deg);
+}
+
+.upload-area:hover .preview-video {
+  transform: rotate(9deg);
+}
+
 .upload-content {
   padding-top: 145px;
   padding-bottom: 14px;
   text-align: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 
 .upload-icon {
   font-size: 24px;
   color: #999999;
   margin-bottom: 8px;
+  transform: translateY(-63px);
 }
 
 .upload-text {
@@ -995,13 +1007,16 @@ const hasConfigurableItems = computed(() => {
   object-fit: contain;
   margin-bottom: 8px;
   border-radius: 11px;
-  position: absolute;
   border: 3px solid #ffffff;
   overflow: hidden;
   margin-top: -132px;
-  margin-left: 17px;
+  margin-left: 37%;
+  margin-right: 40%;
   transform: rotate(-3deg);
   box-shadow: 0 0 24px #00000024;
+  transform-origin: center;
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .preview-video {
@@ -1010,13 +1025,16 @@ const hasConfigurableItems = computed(() => {
   object-fit: contain;
   margin-bottom: 8px;
   border-radius: 11px;
-  position: absolute;
   border: 3px solid #ffffff;
   overflow: hidden;
   margin-top: -132px;
-  margin-left: 17px;
+  margin-left: 37%;
+  margin-right: 40%;
   transform: rotate(3deg);
   box-shadow: 0 0 24px #00000024;
+  transform-origin: center;
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .element-header {
@@ -1175,22 +1193,27 @@ input[type="range"]::-moz-range-thumb {
 
 .toast {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 24px;
-  border-radius: 4px;
+  top: 55px;
+  right: 16px;
+  padding: 10px 18px;
+  border-radius: 8px;
   color: #fff;
   font-size: 14px;
   z-index: 1000;
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
 }
 
 .toast.error {
-  background-color: #ff4d4f;
+  color: #ff4343;
+  background-color: #511010c6;
+  backdrop-filter: blur(15px);
 }
 
 .toast.success {
-  background-color: #25b4e1;
+  color: #ffffff;
+  background-color: #000000bc;
+  backdrop-filter: blur(15px);
 }
 
 @keyframes slideIn {
@@ -1361,13 +1384,11 @@ input:checked + .toggle-slider:before {
 }
 
 .export-button:hover {
-  background: rgba(37, 180, 225, 0.15);
-  border-color: rgba(37, 180, 225, 0.3);
+  opacity: 0.8;
 }
 
 .export-button:active {
-  background: rgba(37, 180, 225, 0.2);
-  border-color: rgba(37, 180, 225, 0.4);
+  opacity: 0.9;
 }
 
 .gradient-layer {
@@ -1423,5 +1444,32 @@ input:checked + .toggle-slider:before {
 .upload-placeholder span {
   font-size: 13px;
   color: #666666;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.6) rotate(-9deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(-3deg);
+    opacity: 1;
+  }
+}
+
+/* 为视频单独设置旋转方向 */
+.preview-video {
+  animation-name: scaleInVideo;
+}
+
+@keyframes scaleInVideo {
+  from {
+    transform: scale(0.6) rotate(9deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(3deg);
+    opacity: 1;
+  }
 }
 </style> 

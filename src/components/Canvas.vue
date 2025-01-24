@@ -1,5 +1,8 @@
 <template>
-  <div class="canvas-container">
+  <div 
+    class="canvas-container"
+    :key="selectedResource.id"
+  >
     <div class="preview-wrapper">
       <!-- 外层容器用于控制缩放 -->
       <div 
@@ -331,6 +334,29 @@ onUpdated(() => {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  opacity: 1;
+
+
+  will-change: opacity, filter, transform;
+}
+
+@keyframes containerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(90px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.canvas-container > * {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
 }
 
 .preview-wrapper {
