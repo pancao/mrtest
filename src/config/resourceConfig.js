@@ -20,7 +20,7 @@ export const resourceTypes = [
       ],
       video: {
         duration: null,
-        fps: 30,
+        fps: null,
         audio: false
       }
     },
@@ -64,6 +64,157 @@ export const resourceTypes = [
             transform: 'translateX(-50%)',
             fontSize: '2.43em',
             whiteSpace: 'nowrap'
+          }
+        }
+      },
+      configLabels: {
+        elements: {
+          title: '跳转按钮文案',
+          button: '跳转按钮'
+        }
+      }
+    }
+  },
+  {
+    id: 3,
+    name: '品牌开屏滑动样式',
+    size: '1152x2048',
+    description: '应用场景：应用启动时的开屏画报，支持滑动展示，建议使用竖向大图。',
+    specs: {
+      format: ['JPG', 'PNG', 'MP4'],
+      maxSize: '20MB',
+      requirements: [
+        '安全区尺寸为903×1676px，此区域会完整展示在开屏中。如出现文字、LOGO请放置在安全区中',
+        '上滑跳转过程中，页面有一个过渡浮层，浮层颜色默认跟随系统模式(黑夜/白天)，如需自定义，请提供 16 进制色值',
+        '其余请遵循主视觉规范',
+        '请勿自行增加按钮等点击引导的文案'
+      ],
+      video: {
+        duration: null,
+        fps: null,
+        audio: false
+      }
+    },
+    image: null,
+    mockupLayer: splashLayer,
+    previewConfig: {
+      bazelVisible: true,
+      imageStyle: {
+        width: '81%',
+        height: '95.1%',
+        objectFit: 'cover',
+        transformOrigin: 'center',
+        marginTop: '4.4%',
+        marginLeft: '9.4%',
+        borderRadius: '10%'
+      },
+      middleLayer: {
+        visible: true,
+        zIndex: 2,
+        style: {
+          top: '4.4%',
+          left: '9.4%',
+          width: '81%',
+          height: '95.1%',
+          opacity: 0.6
+        },
+        gradients: {
+          mask: {
+            visible: true,
+            color: '#000000',
+            style: {
+              background: `linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.00) 100%)`,
+              position: 'absolute',
+              top: '68%',
+              left: '0',
+              width: '100%',
+              height: '30%',
+              borderRadius: '0 0 18% 18%'
+            }
+          }
+        }
+      },
+      uiLayer: {
+        visible: true,
+        zIndex: 3,
+        style: {
+          top: '2.5%',
+          left: '11.1%',
+          width: '78%',
+          height: '95%',
+          objectFit: 'contain'
+        }
+      },
+      configLabels: {
+        gradients: {
+          title: '遮罩',
+          mask: {
+            color: '静态遮罩颜色',
+            opacity: '静态遮罩透明度'
+          }
+        },
+        elements: {
+          title: '文案',
+          mainTitle: '滑动文案',
+          subTitle: '滑动广告语文案'
+        }
+      },
+      customElements: {
+        icon: {
+          text: '',
+          maxLength: 0,
+          visible: true,
+          editable: false,
+          style: {
+            position: 'absolute',
+            bottom: '22%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '60px',
+            height: '24px',
+            background: `url('data:image/svg+xml,${encodeURIComponent(`<svg width="26" height="10" viewBox="0 0 26 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.0715 0.678808C12.6675 0.440397 13.3324 0.440397 13.9285 0.678808L23.9285 4.67881C25.2104 5.19159 25.834 6.64652 25.3212 7.92848C24.8084 9.21044 23.3535 9.83398 22.0715 9.32119L13 5.69258L3.92847 9.32119C2.64651 9.83398 1.19159 9.21044 0.678802 7.92848C0.166018 6.64652 0.789558 5.19159 2.07152 4.67881L12.0715 0.678808Z" fill="white" fill-opacity="0.6"/></svg>`)}')`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+            pointerEvents: 'none'
+          }
+        },
+        mainTitle: {
+          text: '向上滑动查看更多',
+          maxLength: 20,
+          visible: true,
+          editable: 'text-only',
+          style: {
+            position: 'absolute',
+            bottom: '17.4%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: '#ffffff',
+            fontSize: '2.43em',
+            fontWeight: '600',
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
+            pointerEvents: 'none',
+            textShadow: '0px 0px 3px rgba(0, 0, 0, 0.25)'
+          }
+        },
+        subTitle: {
+          text: '了解更多品牌故事',
+          maxLength: 20,
+          visible: true,
+          editable: 'text-only',
+          style: {
+            position: 'absolute',
+            bottom: '15.2%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: 'rgba(255, 255, 255, 1)',
+            fontSize: '1.8em',
+            fontWeight: '600',
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
+            pointerEvents: 'none',
+            textShadow: '0px 0px 3px rgba(0, 0, 0, 0.25)'
           }
         }
       }
@@ -203,10 +354,10 @@ export const resourceTypes = [
     previewConfig: {
       bazelVisible: true,
       imageStyle: {
+        width: '80%',
+        height: '79.9%',
+        left: '10.1%',
         top: '10%',
-        left: '10.2%',
-        width: '79.6%',
-        height: '79.8%',
         objectFit: 'cover',
         borderRadius: '8%'
       },
@@ -218,8 +369,52 @@ export const resourceTypes = [
           left: '10.2%',
           width: '79.6%',
           height: '80%',
-          background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%)',
-          opacity: 0.8
+        },
+        gradients: {
+          bottom: {
+            visible: true,
+            style: {
+              background: `linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.11) 11.46%,
+                rgba(0, 0, 0, 0.31) 24.48%,
+                rgba(0, 0, 0, 0.48) 36.46%,
+                rgba(0, 0, 0, 0.63) 48.35%,
+                rgba(0, 0, 0, 0.74) 58.55%,
+                rgba(0, 0, 0, 0.85) 71.53%,
+                rgba(0, 0, 0, 0.95) 100%
+              )`,
+              top: '39%',
+              height: '61%',
+              position: 'absolute',
+              left: '0',
+              width: '100%'
+            }
+          },
+          top: {
+            visible: true,
+            color: '#000000',
+            style: {
+              top: '39%',
+              height: '61%',
+              opacity: 0.2,
+              position: 'absolute',
+              left: '0',
+              width: '100%',
+              background: `linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.11) 11.46%,
+                rgba(0, 0, 0, 0.31) 24.48%,
+                rgba(0, 0, 0, 0.48) 36.46%,
+                rgba(0, 0, 0, 0.63) 48.35%,
+                rgba(0, 0, 0, 0.74) 58.55%,
+                rgba(0, 0, 0, 0.85) 71.53%,
+                rgba(0, 0, 0, 0.95) 100%
+              )`
+            }
+          }
         }
       },
       uiLayer: {
@@ -234,22 +429,14 @@ export const resourceTypes = [
           objectFit: 'contain'
         }
       },
-      customElements: {
-        button: {
-          text: '立即体验',
-          maxLength: 10,
-          visible: true,
-          style: {
-            backgroundColor: 'rgba(37, 180, 225, 0.6)',
-            color: '#ffffff',
-            borderRadius: '0.3em',
-            padding: '0.9em 1.2em',
-            position: 'absolute',
-            bottom: '15.8%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontSize: '2.43em',
-            whiteSpace: 'nowrap'
+      configLabels: {
+        gradients: {
+          title: '渐变设置',
+          top: {
+            color: '渐变颜色'
+          },
+          bottom: {
+            color: '底层渐变'
           }
         }
       }
@@ -289,7 +476,7 @@ export const resourceTypes = [
         marginLeft: '8.5%',
         borderRadius: '8%'
       },
-      uiLayer: {
+      middleLayer: {
         visible: true,
         zIndex: 2,
         style: {
@@ -297,50 +484,75 @@ export const resourceTypes = [
           left: '8.5%',
           width: '83%',
           height: '101.4%',
-          borderRadius: '8%',
-          objectFit: 'contain'
+        },
+        gradients: {
+          bottom: {
+            visible: true,
+            style: {
+              background: `linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.11) 11.46%,
+                rgba(0, 0, 0, 0.31) 24.48%,
+                rgba(0, 0, 0, 0.48) 36.46%,
+                rgba(0, 0, 0, 0.63) 48.35%,
+                rgba(0, 0, 0, 0.74) 58.55%,
+                rgba(0, 0, 0, 0.85) 71.53%,
+                rgba(0, 0, 0, 0.95) 100%
+              )`,
+              top: '39%',
+              height: '61%',
+              position: 'absolute',
+              left: '0',
+              width: '100%'
+            }
+          },
+          top: {
+            visible: true,
+            color: '#000000',
+            style: {
+              top: '39%',
+              height: '61%',
+              opacity: 0.2,
+              position: 'absolute',
+              left: '0',
+              width: '100%',
+              background: `linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.11) 11.46%,
+                rgba(0, 0, 0, 0.31) 24.48%,
+                rgba(0, 0, 0, 0.48) 36.46%,
+                rgba(0, 0, 0, 0.63) 48.35%,
+                rgba(0, 0, 0, 0.74) 58.55%,
+                rgba(0, 0, 0, 0.85) 71.53%,
+                rgba(0, 0, 0, 0.95) 100%
+              )`
+            }
+          }
         }
-      }
-    }
-  },
-  {
-    id: 7,
-    name: '单集详情顶部焦点图',
-    size: '1125x549',
-    description: '针对1期合作单集进行单集详情页顶部大banner个性化定制，静态图片长期展示',
-    specs: {
-      format: ['JPG', 'PNG'],
-      maxSize: '5MB',
-      requirements: [
-        '此处图片为背景氛围图，请勿在图片中出现品牌标识，除活动主题外传达信息的文字、产品图片等',
-        '单集详情页顶部焦点图是单集详情页顶部展示单集与品牌活动关联性的图片。设计应当基于活动主视觉进行衍生设计',
-        '需要提供一张宽1125px、高549px的图片',
-        '品牌标识有专属展示位置和动画，此素材中请勿出现'
-      ]
-    },
-    image: null,
-    mockupLayer: bannerLayer,
-    previewConfig: {
-      bazelVisible: true,
-      imageStyle: {
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        transformOrigin: 'center',
-        marginTop: '0%',
-        marginLeft: '0%',
-        borderRadius: '0%'
       },
       uiLayer: {
         visible: true,
-        zIndex: 2,
+        zIndex: 3,
         style: {
-          top: '0%',
-          left: '0%',
-          width: '100%',
-          height: '100%',
-          borderRadius: '0%',
-          objectFit: 'contain'
+          top: '-0.7%',
+          left: '8.5%',
+          width: '83%',
+          height: '101.4%',
+          objectFit: 'contain',
+          borderRadius: '8%'
+        }
+      },
+      configLabels: {
+        gradients: {
+          title: '渐变设置',
+          top: {
+            color: '渐变颜色'
+          },
+          bottom: {
+            color: '底层渐变'
+          }
         }
       }
     }

@@ -7,7 +7,7 @@
         <button 
           class="export-button"
           @click="exportConfig"
-          v-if="resourceType.previewConfig.customElements"
+          v-if="hasConfigurableItems"
         >
           导出配置
         </button>
@@ -91,103 +91,158 @@
 
     <!-- 自定义元素编辑区域 -->
     <div 
-      v-if="resourceType.previewConfig.customElements"
       class="section"
     >
       <div class="section-content">
-        <div class="section-title">元素设置</div>
-        <div 
-          v-for="(element, key) in resourceType.previewConfig.customElements" 
-          :key="key"
-          class="element-editor"
-        >
-          <div class="element-header">
-            <span class="element-title">{{ getElementTitle(key) }}</span>
-            <label class="toggle-switch">
-              <input
-                type="checkbox"
-                v-model="element.visible"
-              >
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
+        <!-- 渐变颜色配置 -->
+        <template v-if="resourceType.previewConfig.middleLayer?.gradients">
+          <div class="section-title">{{ getConfigLabel('section', 'gradients') }}</div>
           
-          <template v-if="element.visible">
-            <!-- 文本编辑 -->
+          <!-- 遮罩渐变配置（仅限3号资源位） -->
+          <template v-if="resourceType.id === 3">
             <div class="editor-item">
-              <label>
-                <span>文本内容</span>
-                <span 
-                  class="text-count" 
-                  :class="{ 'text-count-exceeded': isTextExceeded(element) }"
-                >
-                  {{ element.text.length }}/{{ element.maxLength }}
-                </span>
-              </label>
-              <input 
-                v-model="element.text"
-                type="text"
-                :placeholder="`输入${getElementTitle(key)}文本`"
-                :class="{ 'input-exceeded': isTextExceeded(element) }"
-              >
-            </div>
-
-            <!-- 背景色和透明度配置 -->
-            <div class="editor-item" v-if="element.style.backgroundColor">
-              <label>
-                <span>背景颜色</span>
-                <span class="value">{{ Math.round(backgroundOpacity * 100) }}%</span>
-              </label>
-              <div class="color-picker">
-                <div class="color-preview">
-                  <input 
-                    :value="getColorValue(element, 'background')"
-                    type="color"
-                    class="color-input"
-                    @input="(e) => handleColorChange(element, e, 'background')"
-                  >
-                </div>
-                <input 
-                  :value="backgroundOpacity"
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  @input="(e) => backgroundOpacity = parseFloat(e.target.value)"
-                >
-              </div>
-            </div>
-
-            <!-- 文字颜色配置 -->
-            <div class="editor-item">
-              <label>文字颜色</label>
+              <label>{{ getConfigLabel('gradient', 'mask').color }}</label>
               <div class="color-preview">
                 <input 
-                  :value="getColorValue(element, 'text')"
+                  :value="resourceType.previewConfig.middleLayer.gradients.mask.color"
                   type="color"
                   class="color-input"
-                  @input="(e) => handleColorChange(element, e, 'text')"
+                  @input="handleMaskColorChange"
                 >
               </div>
             </div>
-
-            <!-- 圆角大小滑块 -->
-            <div class="editor-item" v-if="key === 'button'">
+            
+            <div class="editor-item">
               <label>
-                <span>圆角大小</span>
-                <span class="value">{{ buttonRadius }}px</span>
+                <span>{{ getConfigLabel('gradient', 'mask').opacity }}</span>
               </label>
               <input 
-                v-model.number="buttonRadius"
+                :value="resourceType.previewConfig.middleLayer.style.opacity"
                 type="range"
                 min="0"
-                max="20"
-                step="1"
-                @input="updateButtonRadius(element)"
+                max="1"
+                step="0.01"
+                @input="handleMaskOpacityChange"
               >
             </div>
           </template>
-        </div>
+          
+          <!-- 其他资源位的渐变配置 -->
+          <template v-if="resourceType.id === 5 || resourceType.id === 6">
+            <div class="editor-item">
+              <label>{{ getConfigLabel('gradient', 'top').color }}</label>
+              <div class="color-preview">
+                <input 
+                  :value="resourceType.previewConfig.middleLayer.gradients.top.color"
+                  type="color"
+                  class="color-input"
+                  @input="handleGradientColorChange"
+                >
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <!-- 自定义元素配置 -->
+        <template 
+          v-if="resourceType.previewConfig.customElements && 
+                 Object.keys(resourceType.previewConfig.customElements).length > 0"
+        >
+          <div class="section-title">{{ getConfigLabel('section', 'elements') }}</div>
+        
+          <div 
+            v-for="(element, key) in resourceType.previewConfig.customElements" 
+            :key="key"
+            class="element-editor"
+          >
+            <div class="element-header" v-if="element.editable !== false">
+              <span class="element-title">{{ getConfigLabel('element', key) }}</span>
+              <label class="toggle-switch" v-if="element.editable !== 'text-only'">
+                <input
+                  type="checkbox"
+                  v-model="element.visible"
+                >
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            
+            <template v-if="element.visible && element.editable !== false">
+              <!-- 文本编辑 -->
+              <div class="editor-item">
+                <label>
+                  <span>文本内容</span>
+                  <span 
+                    class="text-count" 
+                    :class="{ 'text-count-exceeded': isTextExceeded(element) }"
+                  >
+                    {{ element.text.length }}/{{ element.maxLength }}
+                  </span>
+                </label>
+                <input 
+                  v-model="element.text"
+                  type="text"
+                  :placeholder="`输入${getConfigLabel('element', key)}文本`"
+                  :class="{ 'input-exceeded': isTextExceeded(element) }"
+                >
+              </div>
+
+              <!-- 背景色和透明度配置 -->
+              <div class="editor-item" v-if="element.style.backgroundColor && element.editable !== 'text-only'">
+                <label>
+                  <span>背景颜色</span>
+                  <span class="value">{{ Math.round(backgroundOpacity * 100) }}%</span>
+                </label>
+                <div class="color-picker">
+                  <div class="color-preview">
+                    <input 
+                      :value="getColorValue(element, 'background')"
+                      type="color"
+                      class="color-input"
+                      @input="(e) => handleColorChange(element, e, 'background')"
+                    >
+                  </div>
+                  <input 
+                    :value="backgroundOpacity"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    @input="(e) => backgroundOpacity = parseFloat(e.target.value)"
+                  >
+                </div>
+              </div>
+
+              <!-- 文字颜色配置 -->
+              <div class="editor-item" v-if="element.editable !== 'text-only'">
+                <label>文字颜色</label>
+                <div class="color-preview">
+                  <input 
+                    :value="getColorValue(element, 'text')"
+                    type="color"
+                    class="color-input"
+                    @input="(e) => handleColorChange(element, e, 'text')"
+                  >
+                </div>
+              </div>
+
+              <!-- 圆角大小滑块 -->
+              <div class="editor-item" v-if="key === 'button' && element.editable !== 'text-only'">
+                <label>
+                  <span>圆角大小</span>
+                  <span class="value">{{ buttonRadius }}px</span>
+                </label>
+                <input 
+                  v-model.number="buttonRadius"
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="1"
+                  @input="updateButtonRadius(element)"
+                >
+              </div>
+            </template>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -267,6 +322,7 @@ const handleFileChange = (event) => {
   const file = event.target.files[0]
   if (file) {
     processFile(file)
+    event.target.value = ''
   }
 }
 
@@ -367,20 +423,21 @@ const getAcceptTypes = computed(() => {
 
 // 检查文件
 const checkFile = async (file) => {
-  // 检查文件格式
-  const allowedFormats = props.resourceType.specs.format.map(format => {
-    const type = format.toLowerCase()
-    return ['mp4', 'mov'].includes(type) ? `video/${type}` : `image/${type}`
-  })
-  
-  if (!allowedFormats.includes(file.type)) {
-    throw `只支持 ${props.resourceType.specs.format.join('/')} 格式`
+  // 添加文件大小检查
+  const maxSize = parseInt(props.resourceType.specs.maxSize)
+  if (file.size > maxSize * 1024 * 1024) {
+    throw `文件大小不能超过 ${props.resourceType.specs.maxSize}`
   }
 
-  // 检查文件大小
-  const maxSize = parseInt(props.resourceType.specs.maxSize) * 1024 * 1024
-  if (file.size > maxSize) {
-    throw `文件大小不能超过 ${props.resourceType.specs.maxSize}`
+  // 检查文件类型
+  const acceptedFormats = props.resourceType.specs.format.map(format => format.toLowerCase())
+  const fileType = file.type.split('/')[1]?.toLowerCase()
+  
+  if (!acceptedFormats.some(format => 
+    fileType?.includes(format.toLowerCase()) || 
+    file.name.toLowerCase().endsWith(`.${format.toLowerCase()}`)
+  )) {
+    throw `只支持 ${props.resourceType.specs.format.join('/')} 格式`
   }
 
   if (file.type.startsWith('video/')) {
@@ -434,12 +491,10 @@ const checkImage = (file) => {
       URL.revokeObjectURL(url)
       const [expectedWidth, expectedHeight] = props.resourceType.size.split('x').map(Number)
       
-      // 检查图片尺寸
       if (img.width !== expectedWidth || img.height !== expectedHeight) {
         reject(`图片尺寸必须为 ${expectedWidth}x${expectedHeight}`)
         return
       }
-
       resolve(true)
     }
 
@@ -448,7 +503,26 @@ const checkImage = (file) => {
       reject('图片加载失败，请重试')
     }
 
+    // 添加超时处理
+    const timeout = setTimeout(() => {
+      URL.revokeObjectURL(url)
+      reject('图片加载超时，请重试')
+    }, 10000)
+
     img.src = url
+    
+    // 清理超时
+    img.onload = () => {
+      clearTimeout(timeout)
+      URL.revokeObjectURL(url)
+      const [expectedWidth, expectedHeight] = props.resourceType.size.split('x').map(Number)
+      
+      if (img.width !== expectedWidth || img.height !== expectedHeight) {
+        reject(`图片尺寸必须为 ${expectedWidth}x${expectedHeight}`)
+        return
+      }
+      resolve(true)
+    }
   })
 }
 
@@ -456,24 +530,39 @@ const processFile = async (file) => {
   try {
     await checkFile(file)
     const reader = new FileReader()
+    // 添加错误处理
+    reader.onerror = () => {
+      showToast('文件读取失败，请重试')
+    }
     reader.onload = (e) => {
-      console.log('File type before upload:', file.type)
       currentFileType.value = file.type
       emit('image-uploaded', e.target.result)
     }
     reader.readAsDataURL(file)
   } catch (error) {
     showToast(error)
+    // 清理文件输入框的值，确保可以重新选择同一个文件
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
   }
 }
 
-const getElementTitle = (key) => {
-  const titles = {
-    button: '按钮',
-    title: '标题',
-    description: '描述'
+// 获取元素标题
+const getConfigLabel = (type, key) => {
+  const labels = props.resourceType.previewConfig.configLabels
+  if (!labels) return key
+
+  switch (type) {
+    case 'element':
+      return labels.elements?.[key] || key
+    case 'gradient':
+      return labels.gradients?.[key] || key
+    case 'section':
+      return labels[key]?.title || key
+    default:
+      return key
   }
-  return titles[key] || key
 }
 
 const updateRangeProgress = (event) => {
@@ -631,69 +720,41 @@ const defaultValues = {
 }
 
 const exportConfig = () => {
-  const elements = props.resourceType.previewConfig.customElements
   let configText = `${props.resourceType.name} 配置：\n\n`
 
-  // 获取基准尺寸
-  const [width] = props.resourceType.size.split('x').map(Number)
-  const baseSize = width / 100
-
-  // 遍历所有自定义元素
-  Object.entries(elements).forEach(([key, element]) => {
-    if (element.visible) {
-      const elementTitle = getElementTitle(key)
-      const defaultElement = defaultValues[key]
-      let hasChanges = false
-      let elementText = `${elementTitle}：\n`
-
-      // 检查文本是否被修改
-      if (element.text !== defaultElement.text) {
-        elementText += `- 文本内容：${element.text}\n`
-        hasChanges = true
-      }
-
-      // 检查样式属性是否被修改
-      if (element.style.color !== defaultElement.style.color) {
-        elementText += `- 文字颜色：${element.style.color}\n`
-        hasChanges = true
-      }
-
-      if (element.style.backgroundColor && 
-          element.style.backgroundColor !== defaultElement.style.backgroundColor) {
-        elementText += `- 背景颜色：${element.style.backgroundColor}\n`
-        hasChanges = true
-      }
-
-      if (element.style.borderRadius && 
-          element.style.borderRadius !== defaultElement.style.borderRadius) {
-        elementText += `- 圆角大小：${convertToPx(element.style.borderRadius, baseSize)}\n`
-        hasChanges = true
-      }
-
-      if (element.style.fontSize && 
-          element.style.fontSize !== defaultElement.style.fontSize) {
-        elementText += `- 字体大小：${convertToPx(element.style.fontSize, baseSize)}\n`
-        hasChanges = true
-      }
-
-      if (element.style.padding && 
-          element.style.padding !== defaultElement.style.padding) {
-        const [vPad, hPad] = element.style.padding.split(' ')
-          .map(v => convertToPx(v, baseSize))
-        elementText += `- 内边距：上下 ${vPad}，左右 ${hPad}\n`
-        hasChanges = true
-      }
-
-      // 只有当有修改时才添加到配置文本中
-      if (hasChanges) {
-        configText += elementText + '\n'
-      }
+  // 如果有渐变配置，先导出渐变配置
+  if (props.resourceType.previewConfig.middleLayer?.gradients) {
+    if (props.resourceType.id === 3) {
+      // 滑动开屏的遮罩渐变
+      configText += `${getConfigLabel('section', 'gradients')}：\n`
+      configText += `- ${getConfigLabel('gradient', 'mask').color}：${props.resourceType.previewConfig.middleLayer.gradients.mask.color}\n`
+      configText += `- ${getConfigLabel('gradient', 'mask').opacity}：${Math.round(props.resourceType.previewConfig.middleLayer.style.opacity * 100)}%\n\n`
+    } else if (props.resourceType.id === 5 || props.resourceType.id === 6) {
+      // 播客画布的渐变
+      configText += `${getConfigLabel('section', 'gradients')}：\n`
+      configText += `- ${getConfigLabel('gradient', 'top').color}：${props.resourceType.previewConfig.middleLayer.gradients.top.color}\n\n`
     }
-  })
+  }
 
-  // 如果没有任何修改，显示提示
-  if (configText === `${props.resourceType.name} 配置：\n\n`) {
-    configText += '暂无修改的配置项'
+  // 只有当存在 customElements 时才处理
+  if (props.resourceType.previewConfig.customElements) {
+    configText += `元素设置：\n`
+    Object.entries(props.resourceType.previewConfig.customElements).forEach(([key, element]) => {
+      // 确保元素存在且有 text 属性
+      if (element && element.text !== undefined) {
+        const elementTitle = getConfigLabel('element', key)
+        configText += `${elementTitle}：\n`
+        configText += `- 文本内容：${element.text}\n`
+
+        // 如果是按钮，还需要导出颜色配置
+        if (key === 'button' && element.editable !== 'text-only') {
+          configText += `- 背景颜色：${element.style.backgroundColor}\n`
+          configText += `- 文字颜色：${element.style.color}\n`
+          configText += `- 圆角大小：${element.style.borderRadius}\n`
+        }
+        configText += '\n'
+      }
+    })
   }
 
   // 复制到剪贴板
@@ -726,6 +787,28 @@ watch(
   },
   { immediate: true }
 )
+
+const handleGradientColorChange = (event) => {
+  props.resourceType.previewConfig.middleLayer.gradients.top.color = event.target.value
+}
+
+const handleMaskColorChange = (event) => {
+  props.resourceType.previewConfig.middleLayer.gradients.mask.color = event.target.value
+}
+
+const handleMaskOpacityChange = (event) => {
+  props.resourceType.previewConfig.middleLayer.style.opacity = parseFloat(event.target.value)
+  updateRangeProgress(event)
+}
+
+// 判断是否有可配置项
+const hasConfigurableItems = computed(() => {
+  const { previewConfig } = props.resourceType
+  return (
+    previewConfig.customElements && Object.keys(previewConfig.customElements).length > 0 ||
+    previewConfig.middleLayer?.gradients
+  )
+})
 </script>
 
 <style scoped>
@@ -1184,5 +1267,22 @@ input:checked + .toggle-slider:before {
 .export-button:active {
   background: rgba(37, 180, 225, 0.2);
   border-color: rgba(37, 180, 225, 0.4);
+}
+
+.gradient-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bottom-gradient {
+  z-index: 1;
+}
+
+.top-gradient {
+  z-index: 2;
 }
 </style> 

@@ -61,7 +61,28 @@
                 ...selectedResource.previewConfig.middleLayer.style,
                 zIndex: selectedResource.previewConfig.middleLayer.zIndex
               }"
-            ></div>
+            >
+              <!-- 遮罩渐变 -->
+              <div 
+                v-if="selectedResource.previewConfig.middleLayer.gradients?.mask?.visible"
+                class="gradient-layer mask-gradient"
+                :style="getMaskGradientStyle(selectedResource.previewConfig.middleLayer.gradients.mask)"
+              ></div>
+              
+              <!-- 底层渐变 -->
+              <div 
+                v-if="selectedResource.previewConfig.middleLayer.gradients?.bottom?.visible"
+                class="gradient-layer bottom-gradient"
+                :style="selectedResource.previewConfig.middleLayer.gradients.bottom.style"
+              ></div>
+              
+              <!-- 上层渐变 -->
+              <div 
+                v-if="selectedResource.previewConfig.middleLayer.gradients?.top?.visible"
+                class="gradient-layer top-gradient"
+                :style="getTopGradientStyle(selectedResource.previewConfig.middleLayer.gradients.top)"
+              ></div>
+            </div>
             
             <!-- 中层：系统UI mockup -->
             <img 
@@ -229,6 +250,42 @@ const getDisplayText = (element) => {
     return element.text.slice(0, element.maxLength) + '...'
   }
   return element.text
+}
+
+// 生成上层渐变样式
+const getTopGradientStyle = (gradient) => {
+  const color = gradient.color.replace('#', '')
+  const r = parseInt(color.substr(0, 2), 16)
+  const g = parseInt(color.substr(2, 2), 16)
+  const b = parseInt(color.substr(4, 2), 16)
+  
+  return {
+    ...gradient.style,
+    background: `linear-gradient(
+      to bottom,
+      rgba(${r}, ${g}, ${b}, 0) 0%,
+      rgba(${r}, ${g}, ${b}, 0.11) 11.46%,
+      rgba(${r}, ${g}, ${b}, 0.31) 24.48%,
+      rgba(${r}, ${g}, ${b}, 0.48) 36.46%,
+      rgba(${r}, ${g}, ${b}, 0.63) 48.35%,
+      rgba(${r}, ${g}, ${b}, 0.74) 58.55%,
+      rgba(${r}, ${g}, ${b}, 0.85) 71.53%,
+      rgba(${r}, ${g}, ${b}, 0.95) 100%
+    )`
+  }
+}
+
+// 生成遮罩渐变样式
+const getMaskGradientStyle = (gradient) => {
+  const color = gradient.color.replace('#', '')
+  const r = parseInt(color.substr(0, 2), 16)
+  const g = parseInt(color.substr(2, 2), 16)
+  const b = parseInt(color.substr(4, 2), 16)
+  
+  return {
+    ...gradient.style,
+    background: `linear-gradient(0deg, rgb(${r}, ${g}, ${b}) 0%, rgba(${r}, ${g}, ${b}, 0) 100%)`
+  }
 }
 
 onMounted(() => {
@@ -433,10 +490,27 @@ onUpdated(() => {
 .middle-layer {
   position: absolute;
   pointer-events: none;
-  transition: all 0.3s ease;
 }
 
 .resource-content {
   position: absolute;
+}
+
+.gradient-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 8%;
+}
+
+.bottom-gradient {
+  z-index: 1;
+}
+
+.top-gradient {
+  z-index: 2;
 }
 </style> 
