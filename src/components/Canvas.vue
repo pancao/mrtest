@@ -342,9 +342,6 @@ onUpdated(() => {
   height: 100%;
   overflow: hidden;
   opacity: 1;
-
-
-  will-change: opacity, filter, transform;
 }
 
 @keyframes containerFadeIn {
@@ -359,11 +356,7 @@ onUpdated(() => {
 }
 
 .canvas-container > * {
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
+
 }
 
 .preview-wrapper {
