@@ -1,15 +1,39 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { resourceTypes as resourceConfig } from './config/resourceConfig'
 import Sidebar from './components/Sidebar.vue'
 import Canvas from './components/Canvas.vue'
 import ImageUploader from './components/ImageUploader.vue'
 
+const route = useRoute()
+const router = useRouter()
+
 const resourceTypes = ref(resourceConfig)
 const selectedResource = ref(resourceTypes.value[0])
 
+// 根据路由参数更新选中的资源
+watch(
+  () => route.params.id,
+  (newId) => {
+    const id = parseInt(newId)
+    const resource = resourceTypes.value.find(r => r.id === id)
+    if (resource) {
+      selectedResource.value = resource
+    }
+  },
+  { immediate: true }
+)
+
+// 监听选中资源的变化来更新标题
+watch(selectedResource, (newResource) => {
+  if (newResource) {
+    document.title = `${newResource.name}配置`
+  }
+})
+
 const handleResourceSelect = (resource) => {
-  selectedResource.value = resource
+  router.push(`/resource/${resource.id}`)
 }
 
 const handleImageUpload = (imageData) => {

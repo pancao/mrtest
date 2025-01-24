@@ -2,8 +2,15 @@
   <div class="uploader-container">
     <!-- 头部区域 -->
     <div class="section-header">
-      <div class="section-content">
+      <div class="section-content header-content">
         <h4>{{ resourceType.name }} 配置</h4>
+        <button 
+          class="export-button"
+          @click="exportConfig"
+          v-if="resourceType.previewConfig.customElements"
+        >
+          导出配置
+        </button>
       </div>
     </div>
 
@@ -141,12 +148,12 @@
                   >
                 </div>
                 <input 
-                  v-model="backgroundOpacity"
+                  :value="backgroundOpacity"
                   type="range"
                   min="0"
                   max="1"
                   step="0.01"
-                  @input="updateBackgroundOpacity(element)"
+                  @input="(e) => backgroundOpacity = parseFloat(e.target.value)"
                 >
               </div>
             </div>
@@ -196,7 +203,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
 const props = defineProps({
   resourceType: {
@@ -208,7 +215,39 @@ const props = defineProps({
 const emit = defineEmits(['image-uploaded'])
 const fileInput = ref(null)
 
-const backgroundOpacity = ref(0.9)
+const backgroundOpacity = computed({
+  get: () => {
+    const element = Object.values(props.resourceType.previewConfig.customElements)
+      .find(el => el.style.backgroundColor)
+    
+    if (element?.style.backgroundColor) {
+      const match = element.style.backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/)
+      const opacity = match ? parseFloat(match[4] || '1') : 0.9
+      
+      // 更新滑块进度
+      nextTick(() => {
+        const range = document.querySelector('.color-picker input[type="range"]')
+        if (range) {
+          range.value = opacity
+          updateRangeProgress({ target: range })
+        }
+      })
+      
+      return opacity
+    }
+    return 0.9
+  },
+  set: (value) => {
+    const element = Object.values(props.resourceType.previewConfig.customElements)
+      .find(el => el.style.backgroundColor)
+    
+    if (element?.style.backgroundColor) {
+      const hex = rgbaToHex(element.style.backgroundColor)
+      element.style.backgroundColor = hexToRgba(hex, value)
+    }
+  }
+})
+
 const buttonRadius = ref(8)
 
 // 添加 toast 提示状态
@@ -258,6 +297,28 @@ watch(
     // 重置当前文件类型
     currentFileType.value = null
   }
+)
+
+// 监听资源类型变化，重新初始化滑块状态
+watch(
+  () => props.resourceType,
+  (newResource) => {
+    // 等待 DOM 更新后初始化滑块
+    nextTick(() => {
+      // 更新背景色透明度滑块
+      const opacityRange = document.querySelector('.color-picker input[type="range"]')
+      if (opacityRange) {
+        updateRangeProgress({ target: opacityRange })
+      }
+
+      // 更新圆角滑块
+      const radiusRange = document.querySelector('.editor-item input[type="range"]')
+      if (radiusRange) {
+        updateRangeProgress({ target: radiusRange })
+      }
+    })
+  },
+  { immediate: true }
 )
 
 // 修改 isVideo 计算属性
@@ -417,17 +478,13 @@ const getElementTitle = (key) => {
 
 const updateRangeProgress = (event) => {
   const range = event.target
-  const progress = (range.value - range.min) / (range.max - range.min) * 100
-  range.style.setProperty('--range-progress', `${progress}%`)
-}
+  if (!range) return
 
-const updateBackgroundOpacity = (element) => {
-  const color = element.style.backgroundColor
-  const rgba = color.match(/[\d.]+/g)
-  if (rgba) {
-    element.style.backgroundColor = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${backgroundOpacity.value})`
-  }
-  updateRangeProgress(event)
+  const value = parseFloat(range.value)
+  const min = parseFloat(range.min)
+  const max = parseFloat(range.max)
+  const progress = ((value - min) / (max - min)) * 100
+  range.style.setProperty('--range-progress', `${progress}%`)
 }
 
 const updateButtonRadius = (element) => {
@@ -492,6 +549,11 @@ const handleColorChange = (element, event, type) => {
   if (type === 'background') {
     const currentAlpha = backgroundOpacity.value
     element.style.backgroundColor = hexToRgba(hex, currentAlpha)
+    // 更新滑块进度
+    const range = document.querySelector('.color-picker input[type="range"]')
+    if (range) {
+      updateRangeProgress({ target: range })
+    }
   } else if (type === 'text') {
     element.style.color = hex
   }
@@ -520,6 +582,150 @@ const mediaTypeText = computed(() => {
     return '图片'
   }
 })
+
+// 添加单位转换函数
+const convertToPx = (value, baseSize) => {
+  if (typeof value !== 'string') return value
+  
+  // 处理 em
+  if (value.endsWith('em')) {
+    const emValue = parseFloat(value)
+    return `${Math.round(emValue * baseSize)}px`
+  }
+  
+  // 处理百分比
+  if (value.endsWith('%')) {
+    const percent = parseFloat(value)
+    return `${Math.round(baseSize * percent / 100)}px`
+  }
+  
+  return value
+}
+
+// 添加默认值配置
+const defaultValues = {
+  button: {
+    text: '立即体验',
+    style: {
+      color: '#ffffff',
+      backgroundColor: 'rgba(37, 180, 225, 0.6)',
+      borderRadius: '8px',
+      fontSize: '2.43em',
+      padding: '0.9em 1.2em'
+    }
+  },
+  title: {
+    text: '广告标题',
+    style: {
+      color: '#333333',
+      fontSize: '1.2em'
+    }
+  },
+  description: {
+    text: '广告描述文案',
+    style: {
+      color: '#666666',
+      fontSize: '1em'
+    }
+  }
+}
+
+const exportConfig = () => {
+  const elements = props.resourceType.previewConfig.customElements
+  let configText = `${props.resourceType.name} 配置：\n\n`
+
+  // 获取基准尺寸
+  const [width] = props.resourceType.size.split('x').map(Number)
+  const baseSize = width / 100
+
+  // 遍历所有自定义元素
+  Object.entries(elements).forEach(([key, element]) => {
+    if (element.visible) {
+      const elementTitle = getElementTitle(key)
+      const defaultElement = defaultValues[key]
+      let hasChanges = false
+      let elementText = `${elementTitle}：\n`
+
+      // 检查文本是否被修改
+      if (element.text !== defaultElement.text) {
+        elementText += `- 文本内容：${element.text}\n`
+        hasChanges = true
+      }
+
+      // 检查样式属性是否被修改
+      if (element.style.color !== defaultElement.style.color) {
+        elementText += `- 文字颜色：${element.style.color}\n`
+        hasChanges = true
+      }
+
+      if (element.style.backgroundColor && 
+          element.style.backgroundColor !== defaultElement.style.backgroundColor) {
+        elementText += `- 背景颜色：${element.style.backgroundColor}\n`
+        hasChanges = true
+      }
+
+      if (element.style.borderRadius && 
+          element.style.borderRadius !== defaultElement.style.borderRadius) {
+        elementText += `- 圆角大小：${convertToPx(element.style.borderRadius, baseSize)}\n`
+        hasChanges = true
+      }
+
+      if (element.style.fontSize && 
+          element.style.fontSize !== defaultElement.style.fontSize) {
+        elementText += `- 字体大小：${convertToPx(element.style.fontSize, baseSize)}\n`
+        hasChanges = true
+      }
+
+      if (element.style.padding && 
+          element.style.padding !== defaultElement.style.padding) {
+        const [vPad, hPad] = element.style.padding.split(' ')
+          .map(v => convertToPx(v, baseSize))
+        elementText += `- 内边距：上下 ${vPad}，左右 ${hPad}\n`
+        hasChanges = true
+      }
+
+      // 只有当有修改时才添加到配置文本中
+      if (hasChanges) {
+        configText += elementText + '\n'
+      }
+    }
+  })
+
+  // 如果没有任何修改，显示提示
+  if (configText === `${props.resourceType.name} 配置：\n\n`) {
+    configText += '暂无修改的配置项'
+  }
+
+  // 复制到剪贴板
+  navigator.clipboard.writeText(configText).then(() => {
+    showToast('配置已复制到剪贴板', 'success')
+  }).catch(() => {
+    showToast('复制失败，请手动复制', 'error')
+  })
+}
+
+// 监听资源类型变化，重新初始化滑块状态
+watch(
+  () => props.resourceType,
+  (newResource) => {
+    // 从当前按钮样式中提取圆角值
+    const button = newResource.previewConfig.customElements?.button
+    if (button?.style.borderRadius) {
+      const radius = parseInt(button.style.borderRadius) || 8
+      buttonRadius.value = radius
+      
+      // 更新滑块进度
+      nextTick(() => {
+        const range = document.querySelector('.editor-item input[type="range"]')
+        if (range) {
+          range.value = radius
+          updateRangeProgress({ target: range })
+        }
+      })
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -951,5 +1157,32 @@ input:checked + .toggle-slider:before {
 
 .toggle-switch:hover input:checked + .toggle-slider {
   background-color: #4cc3e9;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.export-button {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #25b4e1;
+  background: rgba(37, 180, 225, 0.1);
+  border: 1px solid rgba(37, 180, 225, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-button:hover {
+  background: rgba(37, 180, 225, 0.15);
+  border-color: rgba(37, 180, 225, 0.3);
+}
+
+.export-button:active {
+  background: rgba(37, 180, 225, 0.2);
+  border-color: rgba(37, 180, 225, 0.4);
 }
 </style> 

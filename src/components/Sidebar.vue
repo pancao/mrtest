@@ -4,8 +4,8 @@
       v-for="resource in resourceTypes" 
       :key="resource.id"
       class="resource-item"
-      :class="{ active: selectedId === resource.id }"
-      @click="selectResource(resource)"
+      :class="{ active: isSelected(resource) }"
+      @click="handleSelect(resource)"
     >
       <div class="resource-icon">
         <div class="placeholder-icon">
@@ -21,7 +21,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 const props = defineProps({
   resourceTypes: {
@@ -31,10 +32,20 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select-resource'])
-const selectedId = ref(1)
 
-const selectResource = (resource) => {
-  selectedId.value = resource.id
+const route = useRoute()
+
+// 计算当前选中的资源位 ID
+const currentResourceId = computed(() => {
+  return parseInt(route.params.id)
+})
+
+// 判断资源位是否被选中
+const isSelected = (resource) => {
+  return resource.id === currentResourceId.value
+}
+
+const handleSelect = (resource) => {
   emit('select-resource', resource)
 }
 </script>

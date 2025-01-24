@@ -1,6 +1,7 @@
 import splashLayer from '../assets/mockups/splash_layer0.png'
 import feedLayer from '../assets/mockups/feed_layer0.png'
 import bannerLayer from '../assets/mockups/banner_layer0.png'
+import playerLayer from '../assets/mockups/player_layer0.png'   
 
 export const resourceTypes = [
   {
@@ -9,7 +10,7 @@ export const resourceTypes = [
     size: '1152x2048',
     description: '开机3秒图片或者视频，触达全站听众，点击可跳转品牌播客主页',
     specs: {
-      format: ['JPG', 'PNG', 'MP4', 'MOV'],
+      format: ['JPG', 'PNG', 'MP4'],
       maxSize: '20MB',
       requirements: [
         '安全区尺寸为903×1676px，此区域会完整展示在开屏中。如出现文字、LOGO请放置在安全区中',
@@ -26,6 +27,7 @@ export const resourceTypes = [
     image: null,
     mockupLayer: splashLayer,
     previewConfig: {
+      bazelVisible: true,
       imageStyle: {
         width: '81%',
         height: '95.1%',
@@ -37,7 +39,7 @@ export const resourceTypes = [
       },
       uiLayer: {
         visible: true,
-        zIndex: 2,
+        zIndex: 3,
         style: {
           top: '2.5%',
           left: '11.1%',
@@ -67,80 +69,186 @@ export const resourceTypes = [
       }
     }
   },
+//   {
+//     id: 3,
+//     name: '定制单集',
+//     size: '1242x644',
+//     description: '应用场景：信息流中的图文广告，支持标题、描述文案和按钮的自定义，建议使用横向大图。',
+//     specs: {
+//       format: ['JPG', 'PNG'],
+//       maxSize: '2MB',
+//       requirements: [
+//         '建议使用横向大图',
+//         '保持图片主体内容清晰可见',
+//         '避免文字密集'
+//       ]
+//     },
+//     image: null,
+//     mockupLayer: feedLayer,
+//     previewConfig: {
+//       imageStyle: {
+//         width: '100%',
+//         height: '100%',
+//         objectFit: 'contain'
+//       },
+//       imagePosition: {
+//         top: '20%',
+//         left: '0',
+//         width: '100%',
+//         height: '60%'
+//       },
+//       uiLayer: {
+//         visible: true,
+//         zIndex: 2
+//       },
+//       customElements: {
+//         title: {
+//           text: '广告标题',
+//           maxLength: 12,
+//           visible: true,
+//           style: {
+//             color: '#333333',
+//             fontSize: '1.2em',
+//             fontWeight: 'bold',
+//             position: 'absolute',
+//             top: '5%',
+//             left: '5%',
+//             whiteSpace: 'nowrap'
+//           }
+//         },
+//         description: {
+//           text: '广告描述文案',
+//           maxLength: 20,
+//           visible: true,
+//           style: {
+//             color: '#666666',
+//             fontSize: '1em',
+//             position: 'absolute',
+//             top: '15%',
+//             left: '5%',
+//             maxWidth: '90%',
+//             lineHeight: '1.4'
+//           }
+//         },
+//         button: {
+//           text: '了解更多',
+//           maxLength: 4,
+//           visible: true,
+//           style: {
+//             backgroundColor: 'rgba(64, 169, 255, 0.9)',
+//             color: '#ffffff',
+//             borderRadius: '0.25em',
+//             padding: '0.5em 1em',
+//             position: 'absolute',
+//             bottom: '10%',
+//             right: '5%',
+//             fontSize: '0.9em',
+//             whiteSpace: 'nowrap'
+//           }
+//         }
+//       }
+//     }
+//   },
+//   {
+//     id: 4,
+//     name: 'Banner广告',
+//     size: '1242x200',
+//     description: '应用场景：页面顶部或底部的横幅广告，建议使用简洁的横向设计。',
+//     specs: {
+//       format: ['JPG', 'PNG'],
+//       maxSize: '2MB',
+//       requirements: [
+//         '建议使用横向设计',
+//         '保持重要内容在安全区域内',
+//         '避免过于复杂的背景',
+//         '文字内容清晰可见'
+//       ]
+//     },
+//     image: null,
+//     mockupLayer: bannerLayer,
+//     previewConfig: {
+//       imageStyle: {
+//         width: '100%',
+//         height: '100%',
+//         objectFit: 'contain'
+//       },
+//       imagePosition: {
+//         top: '10%',
+//         left: '5%',
+//         width: '90%',
+//         height: '80%'
+//       },
+//       uiLayer: {
+//         visible: true,
+//         zIndex: 2
+//       }
+//     }
+//   },
   {
-    id: 3,
-    name: '定制单集',
-    size: '1242x644',
-    description: '应用场景：信息流中的图文广告，支持标题、描述文案和按钮的自定义，建议使用横向大图。',
+    id: 5,
+    name: '播客画布',
+    size: '1125x2436',
+    description: '针对合作单集设置，在单集播放页通过背景动态画面呈现效果',
     specs: {
       format: ['JPG', 'PNG'],
-      maxSize: '2MB',
+      maxSize: '5MB',
       requirements: [
-        '建议使用横向大图',
-        '保持图片主体内容清晰可见',
-        '避免文字密集'
+        '此处图片为背景氛围图，请勿在图片中出现品牌标识，传达信息的文字、产品图片等',
+        'LOGO会由系统自动添加，无需在素材中呈现',
+        '如有主体，需要放置在上1/2，否则会被界面元素遮盖'
       ]
     },
     image: null,
-    mockupLayer: feedLayer,
+    mockupLayer: playerLayer,
     previewConfig: {
+      bazelVisible: true,
       imageStyle: {
-        width: '100%',
-        height: '100%',
-        objectFit: 'contain'
+        top: '10%',
+        left: '10.2%',
+        width: '79.6%',
+        height: '79.8%',
+        objectFit: 'cover',
+        borderRadius: '8%'
       },
-      imagePosition: {
-        top: '20%',
-        left: '0',
-        width: '100%',
-        height: '60%'
+      middleLayer: {
+        visible: true,
+        zIndex: 2,
+        style: {
+          top: '10%',
+          left: '10.2%',
+          width: '79.6%',
+          height: '80%',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%)',
+          opacity: 0.8
+        }
       },
       uiLayer: {
         visible: true,
-        zIndex: 2
+        zIndex: 3,
+        style: {
+          top: '10%',
+          left: '10.2%',
+          width: '79.6%',
+          height: '80%',
+          borderRadius: '8%',
+          objectFit: 'contain'
+        }
       },
       customElements: {
-        title: {
-          text: '广告标题',
-          maxLength: 12,
-          visible: true,
-          style: {
-            color: '#333333',
-            fontSize: '1.2em',
-            fontWeight: 'bold',
-            position: 'absolute',
-            top: '5%',
-            left: '5%',
-            whiteSpace: 'nowrap'
-          }
-        },
-        description: {
-          text: '广告描述文案',
-          maxLength: 20,
-          visible: true,
-          style: {
-            color: '#666666',
-            fontSize: '1em',
-            position: 'absolute',
-            top: '15%',
-            left: '5%',
-            maxWidth: '90%',
-            lineHeight: '1.4'
-          }
-        },
         button: {
-          text: '了解更多',
-          maxLength: 4,
+          text: '立即体验',
+          maxLength: 10,
           visible: true,
           style: {
-            backgroundColor: 'rgba(64, 169, 255, 0.9)',
+            backgroundColor: 'rgba(37, 180, 225, 0.6)',
             color: '#ffffff',
-            borderRadius: '0.25em',
-            padding: '0.5em 1em',
+            borderRadius: '0.3em',
+            padding: '0.9em 1.2em',
             position: 'absolute',
-            bottom: '10%',
-            right: '5%',
-            fontSize: '0.9em',
+            bottom: '15.8%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: '2.43em',
             whiteSpace: 'nowrap'
           }
         }
@@ -148,37 +256,92 @@ export const resourceTypes = [
     }
   },
   {
-    id: 4,
-    name: 'Banner广告',
-    size: '1242x200',
-    description: '应用场景：页面顶部或底部的横幅广告，建议使用简洁的横向设计。',
+    id: 6,
+    name: '动态播客画布',
+    size: '1080x1920',
+    description: '针对合作单集设置，在单集播放页通过背景动态画面呈现效果',
+    specs: {
+      format: ['MP4'],
+      maxSize: '10MB',
+      requirements: [
+        '此处视频为氛围素材，请勿在素材中出现品牌标识，传达信息的文字、产品图片等',
+        '视频规格需要提供一段9:16的纵向视频，高度需大于720px；视频帧数需在30FPS以上',
+        '3-10秒的循环视频（最后一帧和第一帧需完全相同，或通过镜头切换来暗示循环效果）',
+        'LOGO会由系统自动添加，无需在素材中呈现',
+        '如有主体，需要放置在上1/2，否则会被界面元素遮盖'
+      ],
+      video: {
+        duration: null,
+        fps: null,
+        audio: false
+      }
+    },
+    image: null,
+    mockupLayer: playerLayer,
+    previewConfig: {
+      bazelVisible: true,
+      imageStyle: {
+        width: '82.9%',
+        height: '101.4%',
+        objectFit: 'cover',
+        transformOrigin: 'center',
+        marginTop: '-1.2%',
+        marginLeft: '8.5%',
+        borderRadius: '8%'
+      },
+      uiLayer: {
+        visible: true,
+        zIndex: 2,
+        style: {
+          top: '-0.7%',
+          left: '8.5%',
+          width: '83%',
+          height: '101.4%',
+          borderRadius: '8%',
+          objectFit: 'contain'
+        }
+      }
+    }
+  },
+  {
+    id: 7,
+    name: '单集详情顶部焦点图',
+    size: '1125x549',
+    description: '针对1期合作单集进行单集详情页顶部大banner个性化定制，静态图片长期展示',
     specs: {
       format: ['JPG', 'PNG'],
-      maxSize: '2MB',
+      maxSize: '5MB',
       requirements: [
-        '建议使用横向设计',
-        '保持重要内容在安全区域内',
-        '避免过于复杂的背景',
-        '文字内容清晰可见'
+        '此处图片为背景氛围图，请勿在图片中出现品牌标识，除活动主题外传达信息的文字、产品图片等',
+        '单集详情页顶部焦点图是单集详情页顶部展示单集与品牌活动关联性的图片。设计应当基于活动主视觉进行衍生设计',
+        '需要提供一张宽1125px、高549px的图片',
+        '品牌标识有专属展示位置和动画，此素材中请勿出现'
       ]
     },
     image: null,
     mockupLayer: bannerLayer,
     previewConfig: {
+      bazelVisible: true,
       imageStyle: {
         width: '100%',
         height: '100%',
-        objectFit: 'contain'
-      },
-      imagePosition: {
-        top: '10%',
-        left: '5%',
-        width: '90%',
-        height: '80%'
+        objectFit: 'cover',
+        transformOrigin: 'center',
+        marginTop: '0%',
+        marginLeft: '0%',
+        borderRadius: '0%'
       },
       uiLayer: {
         visible: true,
-        zIndex: 2
+        zIndex: 2,
+        style: {
+          top: '0%',
+          left: '0%',
+          width: '100%',
+          height: '100%',
+          borderRadius: '0%',
+          objectFit: 'contain'
+        }
       }
     }
   }

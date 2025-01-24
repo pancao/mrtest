@@ -5,74 +5,91 @@
       <div 
         class="preview-scaling-container"
         :style="{
-          width: selectedResource.size.split('x')[0] + 'px',
-          height: selectedResource.size.split('x')[1] + 'px',
+          width: `${BASE_WIDTH}px`,
+          height: `${BASE_HEIGHT}px`,
           transform: `scale(${scale})`,
           transformOrigin: 'center center'
         }"
       >
         <!-- 内层容器固定尺寸，包含所有内容 -->
         <div class="preview-content">
-          <!-- 添加上传按钮 -->
+          <!-- 添加内容容器 -->
           <div 
-            v-if="!selectedResource.image"
-            class="upload-placeholder"
-            @click="$emit('click-upload')"
+            class="resource-content"
+            :style="getContentStyle"
           >
-            <div class="upload-icon">+</div>
-            <div class="upload-text">点击上传{{ mediaTypeText }}</div>
-          </div>
+            <!-- 添加上传按钮 -->
+            <div 
+              v-if="!selectedResource.image"
+              class="upload-placeholder"
+              @click="$emit('click-upload')"
+            >
+              <div class="upload-icon">+</div>
+              <div class="upload-text">点击上传{{ mediaTypeText }}</div>
+            </div>
 
-          <!-- 底层：用户上传的图片或视频 -->
-          <div 
-            v-else 
-            class="image-container"
-          >
-            <template v-if="!isVideo">
-              <img 
-                :src="selectedResource.image" 
-                class="uploaded-image"
-                :style="selectedResource.previewConfig.imageStyle"
-              >
-            </template>
-            <template v-else>
-              <video
-                :src="selectedResource.image"
-                class="uploaded-video"
-                :style="selectedResource.previewConfig.imageStyle"
-                loop
-                muted
-                autoplay
-                playsinline
-              ></video>
-            </template>
+            <!-- 底层：用户上传的图片或视频 -->
+            <div 
+              v-else 
+              class="image-container"
+            >
+              <template v-if="!isVideo">
+                <img 
+                  :src="selectedResource.image" 
+                  class="uploaded-image"
+                  :style="selectedResource.previewConfig.imageStyle"
+                >
+              </template>
+              <template v-else>
+                <video
+                  :src="selectedResource.image"
+                  class="uploaded-video"
+                  :style="selectedResource.previewConfig.imageStyle"
+                  loop
+                  muted
+                  autoplay
+                  playsinline
+                ></video>
+              </template>
+            </div>
+            
+            <!-- 中间层：渐变遮罩等效果 -->
+            <div 
+              v-if="selectedResource.previewConfig.middleLayer?.visible"
+              class="middle-layer"
+              :style="{
+                ...selectedResource.previewConfig.middleLayer.style,
+                zIndex: selectedResource.previewConfig.middleLayer.zIndex
+              }"
+            ></div>
+            
+            <!-- 中层：系统UI mockup -->
+            <img 
+              v-if="selectedResource.previewConfig.uiLayer.visible"
+              :src="selectedResource.mockupLayer" 
+              class="ui-mockup"
+              :style="selectedResource.previewConfig.uiLayer.style"
+            >
+
+            <!-- 自定义元素容器 -->
+            <div class="custom-elements-container">
+              <template v-if="selectedResource.previewConfig.customElements">
+                <div 
+                  v-for="(element, key) in selectedResource.previewConfig.customElements" 
+                  :key="key"
+                  v-show="element.visible"
+                  class="custom-element"
+                  :style="element.style"
+                >
+                  {{ getDisplayText(element) }}
+                </div>
+              </template>
+            </div>
           </div>
           
-          <!-- 中层：系统UI mockup -->
+          <!-- 手机框根据配置显示 -->
           <img 
-            v-if="selectedResource.previewConfig.uiLayer.visible"
-            :src="selectedResource.mockupLayer" 
-            class="ui-mockup"
-            :style="selectedResource.previewConfig.uiLayer.style"
-          >
-
-          <!-- 自定义元素容器 -->
-          <div class="custom-elements-container">
-            <template v-if="selectedResource.previewConfig.customElements">
-              <div 
-                v-for="(element, key) in selectedResource.previewConfig.customElements" 
-                :key="key"
-                v-show="element.visible"
-                class="custom-element"
-                :style="element.style"
-              >
-                {{ getDisplayText(element) }}
-              </div>
-            </template>
-          </div>
-          
-          <!-- 顶层：手机框 -->
-          <img 
+            v-if="selectedResource.previewConfig.bazelVisible !== false"
             src="../assets/bazel.png" 
             class="phone-bezel"
           >
@@ -98,6 +115,9 @@ const props = defineProps({
 })
 
 const scale = ref(1)
+
+const BASE_WIDTH = 1152
+const BASE_HEIGHT = 2048
 
 const isVideo = computed(() => {
   // 如果有上传的资源，根据资源的 data URL 判断
@@ -179,15 +199,30 @@ const updateScale = () => {
 
   const containerWidth = container.clientWidth
   const containerHeight = container.clientHeight
-  const [width, height] = props.selectedResource.size.split('x').map(Number)
 
-  // 计算缩放比例时考虑容器的宽高比
-  const scaleX = containerWidth / width
-  const scaleY = containerHeight / height
+  // 始终使用基准尺寸计算缩放
+  const scaleX = containerWidth / BASE_WIDTH
+  const scaleY = containerHeight / BASE_HEIGHT
   
-  // 使用较小的缩放比例，确保完整显示并保持比例
-  scale.value = Math.min(scaleX, scaleY) * 0.8 // 留出 20% 边距
+  scale.value = Math.min(scaleX, scaleY) * 0.8
 }
+
+// 计算资源内容的位置和尺寸
+const getContentStyle = computed(() => {
+  const [width, height] = props.selectedResource.size.split('x').map(Number)
+  
+  // 计算在基准容器中的居中位置
+  const left = (BASE_WIDTH - width) / 2
+  const top = (BASE_HEIGHT - height) / 2
+  
+  return {
+    position: 'absolute',
+    left: `${left}px`,
+    top: `${top}px`,
+    width: `${width}px`,
+    height: `${height}px`
+  }
+})
 
 const getDisplayText = (element) => {
   if (element.text.length > element.maxLength) {
@@ -226,6 +261,10 @@ onUpdated(() => {
   padding: 0 48px;
   background-color: #f0f2f5;
   position: relative;
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  will-change: transform;
 }
 
 /* 添加网格点效果 */
@@ -262,6 +301,10 @@ onUpdated(() => {
   position: relative;
   transform-origin: center center;
   flex-shrink: 0;
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  will-change: transform;
 }
 
 .preview-content {
@@ -310,8 +353,9 @@ onUpdated(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* 添加这行，保持图片原比例 */
+  object-fit: contain;
   z-index: 3;
+  pointer-events: none;
 }
 
 .custom-elements-container {
@@ -384,5 +428,15 @@ onUpdated(() => {
   color: #25b4e1;
   white-space: nowrap;
   font-weight: 500;
+}
+
+.middle-layer {
+  position: absolute;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.resource-content {
+  position: absolute;
 }
 </style> 
