@@ -1,7 +1,8 @@
 import splashLayer from '../assets/mockups/splash_layer0.png'
 import feedLayer from '../assets/mockups/feed_layer0.png'
 import bannerLayer from '../assets/mockups/banner_layer0.png'
-import playerLayer from '../assets/mockups/player_layer0.png'   
+import playerLayer from '../assets/mockups/player_layer0.png'
+import barsLayer from '../assets/mockups/bars_layer0.png'
 
 export const resourceTypes = [
   {
@@ -71,6 +72,10 @@ export const resourceTypes = [
         }
       },
       configLabels: {
+        colors: {
+          title: '颜色设置',
+          main: '主题色'
+        },
         elements: {
           title: '跳转',
           button: '跳转按钮'
@@ -125,6 +130,7 @@ export const resourceTypes = [
           mask: {
             visible: true,
             color: '#000000',
+            opacity: 0.6,
             style: {
               background: `linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.00) 100%)`,
               position: 'absolute',
@@ -152,14 +158,14 @@ export const resourceTypes = [
         gradients: {
           title: '遮罩',
           mask: {
-            color: '静态遮罩颜色',
-            opacity: '静态遮罩透明度'
+            color: '遮罩颜色',
+            opacity: '遮罩透明度'
           }
         },
         elements: {
           title: '文案',
-          mainTitle: '滑动文案',
-          subTitle: '滑动广告语文案'
+          mainTitle: '主标题',
+          subTitle: '副标题'
         }
       },
       customElements: {
@@ -745,6 +751,154 @@ export const resourceTypes = [
             left: '-18.8%',
             width: '80%',
             height: '100px'
+          }
+        }
+      }
+    }
+  },
+  {
+    id: 7,
+    name: '发现页导航标签',
+    size: '1152x2048',
+    description: '在发现页顶部导航栏展示的品牌标签，点击可跳转到品牌播客主页',
+    specs: {
+      format: ['JPG', 'PNG'],
+      maxSize: '2MB',
+      requirements: [
+        '图片尺寸需要严格按照规范制作，否则可能导致展示异常',
+        '请勿自行增加按钮等点击引导的文案',
+        '其余请遵循主视觉规范'
+      ]
+    },
+    image: null,
+    mockupLayer: barsLayer,
+    previewConfig: {
+      bazelVisible: true,
+      imageStyle: {
+        width: '81%',
+        height: '95.1%',
+        objectFit: 'cover',
+        transformOrigin: 'center',
+        marginTop: '4.4%',
+        marginLeft: '9.4%',
+        borderRadius: '10%'
+      },
+      uiLayer: {
+        visible: true,
+        zIndex: 3,
+        style: {
+          top: '2.5%',
+          left: '11.1%',
+          width: '78%',
+          height: '95%',
+          objectFit: 'contain'
+        }
+      },
+      configLabels: {
+        colors: {
+          title: '颜色设置',
+          themeColor: '主题色'
+        },
+        elements: {
+          title: '封面配置',
+          coverImage1: '背景图',
+          coverImage2: '小图标',
+          coverImage3: '右侧文字图'
+        }
+      },
+      customElements: {
+        staticImage1: {
+          image: '/cata/1.png',
+          visible: true,
+          editable: false,
+          style: {
+            width: 'auto',
+            objectFit: 'cover',
+            overflow: 'hidden'
+          }
+        },
+        staticImage2: {
+          image: '/cata/2.png',
+          visible: true,
+          editable: false,
+          style: {
+            width: 'auto',
+            objectFit: 'cover',
+            overflow: 'hidden'
+          }
+        },
+        staticImage3: {
+          image: '/cata/3.png',
+          visible: true,
+          editable: false,
+          style: {
+            width: 'auto',
+            objectFit: 'cover',
+            overflow: 'hidden',
+          }
+        },
+        staticImage4: {
+          image: '/cata/4.png',
+          visible: true,
+          editable: false,
+          style: {
+            width: 'auto',
+            objectFit: 'cover',
+            overflow: 'hidden',
+          }
+        },
+        coverImage1: {
+          image: null,
+          visible: true,
+          editable: true,
+          showImage: true,
+          themeColor: '#25b4e1',
+          style: {
+            top: '45.5%',
+            left: '2%',
+            width: 'auto',
+            height: 'auto',
+            objectFit: 'cover',
+            overflow: 'hidden',
+            background: 'linear-gradient(180deg, rgba(37, 180, 225, 0.11) 0%, rgba(255, 255, 255, 0.5) 100%) white'
+          }
+        },
+        coverImage2: {
+          image: null,
+          visible: true,
+          editable: true,
+          style: {
+            top: '45.5%',
+            left: '35%',
+            width: 'auto',
+            height: 'auto',
+            objectFit: 'cover',
+            overflow: 'hidden',
+            zIndex: 99
+          }
+        },
+        coverImage3: {
+          image: null,
+          visible: true,
+          editable: true,
+          text: '默认文字',
+          maxLength: 10,
+          showImage: false,
+          zIndex: 99,
+          style: {
+            width: 'auto',
+            height: '91%',
+            objectFit: 'cover',
+            overflow: 'hidden',
+            transform: 'translateY(2px) translateX(-5px)',
+            textStyle: {
+              color: '#25b4e1',
+              fontSize: '33px',
+              textAlign: 'center',
+              lineHeight: '123px',
+              width: '100%',
+              height: '100%',
+            }
           }
         }
       }

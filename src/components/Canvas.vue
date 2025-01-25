@@ -98,30 +98,122 @@
             <!-- 自定义元素容器 -->
             <div class="custom-elements-container">
               <template v-if="selectedResource.previewConfig.customElements">
-                <div 
-                  v-for="(element, key) in selectedResource.previewConfig.customElements" 
-                  :key="key"
-                  v-show="element.visible"
-                  class="custom-element"
-                  :style="element.style"
-                >
-                  <!-- 图片元素 -->
-                  <template v-if="element.image !== undefined">
-                    <img 
-                      v-if="element.image"
-                      :src="element.image"
-                      :style="{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: element.style.objectFit || 'contain'
-                      }"
-                    />
-                  </template>
-                  <!-- 文本元素 -->
-                  <template v-else>
-                    {{ element.text }}
-                  </template>
-                </div>
+                <!-- 发现页导航标签的特殊布局 -->
+                <template v-if="selectedResource.id === 7">
+                  <div class="bars-layout">
+                    <div class="images-row">
+                      <!-- 第一张静态图片 -->
+                      <img 
+                        :src="selectedResource.previewConfig.customElements.staticImage1.image"
+                        :style="selectedResource.previewConfig.customElements.staticImage1.style"
+                        class="static-image"
+                      />
+
+                      <!-- 可上传封面图区域 -->
+                      <div class="upload-images">
+                        <!-- coverImage1 作为背景 -->
+                        <div class="upload-images-background">
+                          <img 
+                            v-if="selectedResource.previewConfig.customElements.coverImage1.showImage && 
+                                 selectedResource.previewConfig.customElements.coverImage1.image"
+                            :src="selectedResource.previewConfig.customElements.coverImage1.image"
+                            class="background-image"
+                          />
+                          <div 
+                            v-else
+                            class="gradient-background"
+                            :style="{
+                              background: selectedResource.previewConfig.customElements.coverImage1.style.background
+                            }"
+                          ></div>
+                        </div>
+
+                        <!-- 只展示 coverImage2 和 coverImage3 -->
+                        <template v-for="i in 3" :key="`cover-${i}`">
+                          <template v-if="i > 1">
+                            <!-- 特殊处理第三个位置 -->
+                            <template v-if="i === 3">
+                              <div 
+                                class="cover-container"
+                                :style="selectedResource.previewConfig.customElements[`coverImage${i}`].style"
+                              >
+                                <img 
+                                  v-if="selectedResource.previewConfig.customElements[`coverImage${i}`].showImage && 
+                                       selectedResource.previewConfig.customElements[`coverImage${i}`].image"
+                                  :src="selectedResource.previewConfig.customElements[`coverImage${i}`].image"
+                                  :style="{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                  }"
+                                />
+                                <div 
+                                  v-else
+                                  class="cover-text"
+                                  :style="{
+                                    ...selectedResource.previewConfig.customElements[`coverImage${i}`].style.textStyle,
+                                    color: selectedResource.previewConfig.customElements.coverImage1.themeColor
+                                  }"
+                                >
+                                  {{ selectedResource.previewConfig.customElements[`coverImage${i}`].text }}
+                                </div>
+                              </div>
+                            </template>
+                            <!-- 其他位置保持不变 -->
+                            <template v-else>
+                              <img 
+                                v-if="selectedResource.previewConfig.customElements[`coverImage${i}`].image"
+                                :src="selectedResource.previewConfig.customElements[`coverImage${i}`].image"
+                                :style="selectedResource.previewConfig.customElements[`coverImage${i}`].style"
+                              />
+                              <div 
+                                v-else
+                                class="empty-cover"
+                                :style="selectedResource.previewConfig.customElements[`coverImage${i}`].style"
+                              ></div>
+                            </template>
+                          </template>
+                        </template>
+                      </div>
+
+                      <!-- 剩余的静态图片 -->
+                      <img 
+                        v-for="i in [2,3,4]"
+                        :key="`static-${i}`"
+                        :src="selectedResource.previewConfig.customElements[`staticImage${i}`].image"
+                        :style="selectedResource.previewConfig.customElements[`staticImage${i}`].style"
+                        class="static-image"
+                      />
+                    </div>
+                  </div>
+                </template>
+                <!-- 其他资源位保持原有布局 -->
+                <template v-else>
+                  <div 
+                    v-for="(element, key) in selectedResource.previewConfig.customElements" 
+                    :key="key"
+                    v-show="element.visible"
+                    class="custom-element"
+                    :style="element.style"
+                  >
+                    <!-- 图片元素 -->
+                    <template v-if="element.image !== undefined">
+                      <img 
+                        v-if="element.image"
+                        :src="element.image"
+                        :style="{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: element.style.objectFit || 'contain'
+                        }"
+                      />
+                    </template>
+                    <!-- 文本元素 -->
+                    <template v-else>
+                      {{ element.text }}
+                    </template>
+                  </div>
+                </template>
               </template>
             </div>
           </div>
@@ -438,7 +530,7 @@ onUpdated(() => {
   width: 78%;
   height: 95%;
   z-index: 4;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .custom-element {
@@ -538,5 +630,124 @@ onUpdated(() => {
 
 .top-gradient {
   z-index: 2;
+}
+
+/* 发现页导航标签布局 */
+.bars-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  padding-top: 578px;
+  padding-left: 1px;
+  padding-right: 4px;
+}
+
+.images-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 20px;
+  position: relative;
+  pointer-events: auto;
+  padding-left: 54px;
+  filter: drop-shadow(0px 4px 44px rgba(0, 0, 0, 0.08));
+}
+
+.images-row::-webkit-scrollbar {
+  display: none;
+}
+
+
+.static-image {
+  width: auto;
+  height: 84px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.upload-images {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex-shrink: 0;
+  height: 84px;
+  position: relative;
+  padding: 19px 26px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.upload-images-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.empty-background {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+}
+
+.gradient-background {
+  width: 100%;
+  height: 100%;
+}
+
+.empty-cover {
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+  border-radius: 23px;
+  width: 80px;
+  height: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.cover-container {
+  flex-shrink: 0;
+  /* background-color: #f5f5f5;
+  border-radius: 23px; */
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.cover-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 32px;
+  font-weight: 700;
+  transform: translateY(-2px);
+  user-select: none;
 }
 </style> 

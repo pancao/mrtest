@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, provide } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { resourceTypes as resourceConfig } from './config/resourceConfig'
 import Sidebar from './components/Sidebar.vue'
@@ -12,6 +12,13 @@ const router = useRouter()
 const resourceTypes = ref(resourceConfig)
 const selectedResource = ref(resourceTypes.value[0])
 const sidebarsHidden = ref(false)
+
+// Toast 状态
+const toast = ref({
+  visible: false,
+  message: '',
+  type: 'error'
+})
 
 // 根据路由参数更新选中的资源
 watch(
@@ -52,6 +59,21 @@ const triggerUpload = () => {
 const toggleSidebars = () => {
   sidebarsHidden.value = !sidebarsHidden.value
 }
+
+// 显示 toast 的方法
+const showToast = (message, type = 'error') => {
+  toast.value = {
+    visible: true,
+    message,
+    type
+  }
+  setTimeout(() => {
+    toast.value.visible = false
+  }, 3000)
+}
+
+// 将 showToast 方法提供给子组件
+provide('showToast', showToast)
 </script>
 
 <template>
@@ -91,6 +113,15 @@ const toggleSidebars = () => {
         :resourceType="selectedResource"
         @image-uploaded="handleImageUpload" 
       />
+    </div>
+
+    <!-- Toast 提示 -->
+    <div 
+      v-if="toast.visible" 
+      class="toast"
+      :class="toast.type"
+    >
+      {{ toast.message }}
     </div>
   </div>
 </template>
@@ -177,5 +208,40 @@ const toggleSidebars = () => {
 
 .right-sidebar.sidebar-hidden {
   transform: translateX(120%);
+}
+
+.toast {
+  position: fixed;
+  top: 70px;
+  right: 33px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  z-index: 1000;
+  animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toast.error {
+  color: #ff4343;
+  background-color: #511010c6;
+  backdrop-filter: blur(15px);
+}
+
+.toast.success {
+  color: #ffffff;
+  background-color: #000000bc;
+  backdrop-filter: blur(15px);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 </style>

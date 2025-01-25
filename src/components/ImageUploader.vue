@@ -45,47 +45,50 @@
           </div>
         </div>
 
-        <div class="section-title">素材选择</div>
+        <!-- 素材选择区域（发现页导航标签不显示） -->
+        <template v-if="resourceType.id !== 7">
+          <div class="section-title">素材选择</div>
 
-        <div 
-          class="upload-area"
-          @dragover.prevent
-          @drop.prevent="handleDrop"
-          @click="triggerFileInput"
-        >
-          <input 
-            type="file" 
-            ref="fileInput"
-            style="display: none"
-            :accept="getAcceptTypes"
-            @change="handleFileChange"
+          <div 
+            class="upload-area"
+            @dragover.prevent
+            @drop.prevent="handleDrop"
+            @click="triggerFileInput"
           >
-          <div class="upload-content">
-            <template v-if="resourceType.image">
-              <template v-if="!isVideo">
-                <img 
-                  :src="resourceType.image" 
-                  class="preview-image"
-                >
+            <input 
+              type="file" 
+              ref="fileInput"
+              style="display: none"
+              :accept="getAcceptTypes"
+              @change="handleFileChange"
+            >
+            <div class="upload-content">
+              <template v-if="resourceType.image">
+                <template v-if="!isVideo">
+                  <img 
+                    :src="resourceType.image" 
+                    class="preview-image"
+                  >
+                </template>
+                <template v-else>
+                  <video
+                    :src="resourceType.image"
+                    class="preview-video"
+                    loop
+                    muted
+                    autoplay
+                    playsinline
+                  ></video>
+                </template>
+                <span class="upload-text">点击更换{{ mediaTypeText }}</span>
               </template>
               <template v-else>
-                <video
-                  :src="resourceType.image"
-                  class="preview-video"
-                  loop
-                  muted
-                  autoplay
-                  playsinline
-                ></video>
+                <div class="upload-icon">+</div>
+                <span class="upload-text">点击或拖拽上传{{ mediaTypeText }}</span>
               </template>
-              <span class="upload-text">点击更换{{ mediaTypeText }}</span>
-            </template>
-            <template v-else>
-              <div class="upload-icon">+</div>
-              <span class="upload-text">点击或拖拽上传{{ mediaTypeText }}</span>
-            </template>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
 
@@ -94,9 +97,51 @@
       class="section"
     >
       <div class="section-content">
-        <!-- 颜色配置（仅限播客画布和动态播客画布） -->
+        <!-- 颜色配置 -->
+        <!-- 开屏画报的颜色配置 -->
+        <template v-if="resourceType.id === 1">
+          <div class="section-title">{{ getConfigLabel('colors', 'title') }}</div>
+          <div class="editor-item">
+            <label>
+              <span>按钮颜色</span>
+              <span class="value">{{ Math.round(backgroundOpacity * 100) }}%</span>
+            </label>
+            <div class="color-picker">
+              <div class="color-preview">
+                <input 
+                  :value="getColorValue(resourceType.previewConfig.customElements.button, 'background')"
+                  type="color"
+                  class="color-input"
+                  @input="(e) => handleColorChange(resourceType.previewConfig.customElements.button, e, 'background')"
+                >
+              </div>
+              <input 
+                v-model="backgroundOpacity"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                @input="updateRangeProgress"
+              >
+            </div>
+          </div>
+          
+          <div class="editor-item">
+            <label>按钮文字颜色</label>
+            <div class="color-preview">
+              <input 
+                :value="getColorValue(resourceType.previewConfig.customElements.button, 'text')"
+                type="color"
+                class="color-input"
+                @input="(e) => handleColorChange(resourceType.previewConfig.customElements.button, e, 'text')"
+              >
+            </div>
+          </div>
+        </template>
+
+        <!-- 播客画布的颜色配置 -->
         <template 
-          v-if="resourceType.id === 5 || resourceType.id === 6"
+          v-else-if="resourceType.id === 5 || resourceType.id === 6"
         >
           <div class="section-title">{{ getConfigLabel('section', 'colors') }}</div>
           
@@ -108,6 +153,54 @@
                 type="color"
                 class="color-input"
                 @input="handleThemeColorChange"
+              >
+            </div>
+          </div>
+        </template>
+
+        <!-- 发现页导航标签的颜色配置 -->
+        <template 
+          v-else-if="resourceType.id === 7"
+        >
+          <div class="section-title">{{ getConfigLabel('colors', 'title') }}</div>
+          <div class="editor-item">
+            <label>{{ getConfigLabel('colors', 'themeColor') }}</label>
+            <div class="color-preview">
+              <input 
+                :value="resourceType.previewConfig.customElements.coverImage1.themeColor"
+                type="color"
+                class="color-input"
+                @input="handleThemeColorChange"
+              >
+            </div>
+          </div>
+        </template>
+
+        <!-- 遮罩配置（仅限滑动开屏） -->
+        <template v-if="resourceType.id === 3">
+          <div class="section-title">{{ getConfigLabel('section', 'gradients') }}</div>
+          
+          <div class="editor-item">
+            <label>
+              <span>{{ getConfigLabel('gradients', 'mask', 'color') }}</span>
+              <span class="value">{{ Math.round(maskOpacity * 100) }}%</span>
+            </label>
+            <div class="color-picker">
+              <div class="color-preview">
+                <input 
+                  :value="resourceType.previewConfig.middleLayer.gradients.mask.color"
+                  type="color"
+                  class="color-input"
+                  @input="handleMaskColorChange"
+                >
+              </div>
+              <input 
+                :value="maskOpacity"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                @input="handleMaskOpacityChange"
               >
             </div>
           </div>
@@ -127,13 +220,25 @@
           >
             <div class="element-header" v-if="element.editable !== false">
               <span class="element-title">{{ getConfigLabel('element', key) }}</span>
+              <!-- 为 coverImage1 添加切换按钮 -->
               <label 
-                class="toggle-switch" 
-                v-if="element.editable !== 'text-only' && ![5, 6].includes(resourceType.id)"
+                class="toggle-switch"
+                v-if="key === 'coverImage1'"
               >
                 <input
                   type="checkbox"
-                  v-model="element.visible"
+                  v-model="element.showImage"
+                >
+                <span class="toggle-slider"></span>
+              </label>
+              <!-- 为 coverImage3 添加切换按钮 -->
+              <label 
+                class="toggle-switch"
+                v-if="key === 'coverImage3'"
+              >
+                <input
+                  type="checkbox"
+                  v-model="element.showImage"
                 >
                 <span class="toggle-slider"></span>
               </label>
@@ -174,7 +279,7 @@
               </div>
 
               <!-- 文本编辑 -->
-              <div class="editor-item" v-if="element.text !== undefined">
+              <div class="editor-item" v-if="element.text !== undefined && (key !== 'coverImage3' || !element.showImage)">
                 <label>
                   <span>文本内容</span>
                   <span 
@@ -190,45 +295,6 @@
                   :placeholder="`输入${getConfigLabel('element', key)}文本`"
                   :class="{ 'input-exceeded': isTextExceeded(element) }"
                 >
-              </div>
-
-              <!-- 背景色和透明度配置 -->
-              <div class="editor-item" v-if="element.style.backgroundColor && element.editable !== 'text-only' && key !== 'coverImage'">
-                <label>
-                  <span>背景颜色</span>
-                  <span class="value">{{ Math.round(backgroundOpacity * 100) }}%</span>
-                </label>
-                <div class="color-picker">
-                  <div class="color-preview">
-                    <input 
-                      :value="getColorValue(element, 'background')"
-                      type="color"
-                      class="color-input"
-                      @input="(e) => handleColorChange(element, e, 'background')"
-                    >
-                  </div>
-                  <input 
-                    :value="backgroundOpacity"
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    @input="(e) => backgroundOpacity = parseFloat(e.target.value)"
-                  >
-                </div>
-              </div>
-
-              <!-- 文字颜色配置 -->
-              <div class="editor-item" v-if="element.editable !== 'text-only' && key !== 'coverImage'">
-                <label>文字颜色</label>
-                <div class="color-preview">
-                  <input 
-                    :value="getColorValue(element, 'text')"
-                    type="color"
-                    class="color-input"
-                    @input="(e) => handleColorChange(element, e, 'text')"
-                  >
-                </div>
               </div>
 
               <!-- 圆角大小滑块 -->
@@ -251,20 +317,11 @@
         </template>
       </div>
     </div>
-
-    <!-- Toast 提示 -->
-    <div 
-      v-if="toast.visible" 
-      class="toast"
-      :class="toast.type"
-    >
-      {{ toast.message }}
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, nextTick, inject } from 'vue'
 
 const props = defineProps({
   resourceType: {
@@ -313,12 +370,8 @@ const backgroundOpacity = computed({
 
 const buttonRadius = ref(8)
 
-// 添加 toast 提示状态
-const toast = ref({
-  visible: false,
-  message: '',
-  type: 'error'
-})
+// 注入 showToast 方法
+const showToast = inject('showToast')
 
 const currentFileType = ref(null)
 
@@ -340,18 +393,6 @@ const handleDrop = (event) => {
   if (file && isValidType) {
     processFile(file)
   }
-}
-
-// 显示 toast 提示
-const showToast = (message, type = 'error') => {
-  toast.value = {
-    visible: true,
-    message,
-    type
-  }
-  setTimeout(() => {
-    toast.value.visible = false
-  }, 3000)
 }
 
 // 监听 resourceType 的变化
@@ -602,8 +643,8 @@ const updateRangeProgress = (event) => {
       const opacity = Math.max(minOpacity, value)
       range.style.background = `linear-gradient(
         to right,
-        rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity}) ${progress}%,
-        rgba(0, 0, 0, 0.1) ${progress}%
+        rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity}) var(--range-progress, 0%),
+        rgba(0, 0, 0, 0.1) var(--range-progress, 0%)
       )`
     }
   }
@@ -782,10 +823,17 @@ const defaultValues = {
 const exportConfig = () => {
   let configText = `${props.resourceType.name} 配置：\n\n`
 
-  // 如果是播客画布，先导出主题色
-  if (props.resourceType.id === 5) {
+  // 如果是播客画布或发现页导航标签，先导出主题色
+  if (props.resourceType.id === 5 || props.resourceType.id === 7) {
     configText += `颜色设置：\n`
-    configText += `- 主题色：${themeColor.value}\n\n`
+    // 播客画布使用 themeColor
+    if (props.resourceType.id === 5) {
+      configText += `- 主题色：${themeColor.value}\n\n`
+    }
+    // 发现页导航标签使用 coverImage1 的 themeColor
+    else if (props.resourceType.id === 7) {
+      configText += `- 主题色：${props.resourceType.previewConfig.customElements.coverImage1.themeColor}\n\n`
+    }
   }
 
   // 只有当存在 customElements 时才处理
@@ -825,12 +873,22 @@ const themeColor = computed(() => {
 // 处理主题色变化
 const handleThemeColorChange = (event) => {
   const color = event.target.value
-  // 更新渐变颜色
-  props.resourceType.previewConfig.middleLayer.gradients.top.color = color
-  // 更新播客名称文字颜色
-  props.resourceType.previewConfig.customElements.podcastName.style.color = color
-  // 更新进度条 SVG 颜色
-  updateProgressBarColor(color)
+  const { coverImage1, coverImage3 } = props.resourceType.previewConfig.customElements
+  
+  // 更新主题色
+  coverImage1.themeColor = color
+  
+  // 更新背景渐变
+  const rgb = hexToRgb(color)
+  coverImage1.style.background = 
+    `linear-gradient(180deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.11) 0%, rgba(255, 255, 255, 0.5) 100%) white`
+  
+  // 更新文字颜色
+  if (coverImage3.style.textStyle) {
+    coverImage3.style.textStyle.color = color
+  }
+  // 同时更新 coverImage3 的主题色，确保状态同步
+  coverImage3.themeColor = color
 }
 
 // 更新进度条 SVG 颜色
@@ -896,6 +954,65 @@ const hasConfigurableItems = computed(() => {
     [5, 6].includes(props.resourceType.id) // 播客画布和动态播客画布始终显示导出按钮
   )
 })
+
+const maskOpacity = ref(0.6)
+
+const handleMaskColorChange = (event) => {
+  const color = event.target.value
+  if (props.resourceType.previewConfig.middleLayer?.gradients?.mask) {
+    props.resourceType.previewConfig.middleLayer.gradients.mask.color = color
+    // 更新渐变背景
+    updateMaskGradient(color, maskOpacity.value)
+  }
+}
+
+const handleMaskOpacityChange = (event) => {
+  const opacity = parseFloat(event.target.value)
+  maskOpacity.value = opacity
+  // 立即更新 UI
+  updateRangeProgress(event)
+  
+  if (props.resourceType.previewConfig.middleLayer?.style) {
+    props.resourceType.previewConfig.middleLayer.style.opacity = opacity
+  }
+  // 更新渐变背景
+  if (props.resourceType.previewConfig.middleLayer?.gradients?.mask) {
+    updateMaskGradient(
+      props.resourceType.previewConfig.middleLayer.gradients.mask.color,
+      opacity
+    )
+  }
+}
+
+const updateMaskGradient = (color, opacity) => {
+  if (props.resourceType.previewConfig.middleLayer?.gradients?.mask) {
+    const rgb = hexToRgb(color)
+    // 更新滑块的背景渐变
+    const range = document.querySelector('.color-picker input[type="range"]')
+    if (range) {
+      const progress = ((opacity - range.min) / (range.max - range.min)) * 100
+      range.style.background = `linear-gradient(
+        to right,
+        rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity}) ${progress}%,
+        rgba(0, 0, 0, 0.1) ${progress}%
+      )`
+    }
+    // 更新遮罩渐变
+    props.resourceType.previewConfig.middleLayer.gradients.mask.style.background = 
+      `linear-gradient(0deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity}) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0) 100%)`
+  }
+}
+
+// 监听资源类型变化，更新透明度值
+watch(
+  () => props.resourceType.id,
+  (newId) => {
+    if (newId === 3 && props.resourceType.previewConfig.middleLayer?.style) {
+      maskOpacity.value = props.resourceType.previewConfig.middleLayer.style.opacity
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -1043,8 +1160,10 @@ const hasConfigurableItems = computed(() => {
   transform: rotate(3deg);
   box-shadow: 0 0 24px #00000024;
   transform-origin: center;
-  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: scaleIn 0.3s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-fill-mode: forwards;
+  opacity: 0;
 }
 
 .element-header {
@@ -1199,42 +1318,6 @@ input[type="range"]::-moz-range-thumb {
   opacity: 1;
   transform: scaleY(1.2);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-.toast {
-  position: fixed;
-  top: 55px;
-  right: 16px;
-  padding: 10px 18px;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 14px;
-  z-index: 1000;
-  animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  
-}
-
-.toast.error {
-  color: #ff4343;
-  background-color: #511010c6;
-  backdrop-filter: blur(15px);
-}
-
-.toast.success {
-  color: #ffffff;
-  background-color: #000000bc;
-  backdrop-filter: blur(15px);
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
 }
 
 .description-text {
