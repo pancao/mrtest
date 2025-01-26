@@ -873,22 +873,35 @@ const themeColor = computed(() => {
 // 处理主题色变化
 const handleThemeColorChange = (event) => {
   const color = event.target.value
-  const { coverImage1, coverImage3 } = props.resourceType.previewConfig.customElements
   
-  // 更新主题色
-  coverImage1.themeColor = color
-  
-  // 更新背景渐变
-  const rgb = hexToRgb(color)
-  coverImage1.style.background = 
-    `linear-gradient(180deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.11) 0%, rgba(255, 255, 255, 0.5) 100%) white`
-  
-  // 更新文字颜色
-  if (coverImage3.style.textStyle) {
-    coverImage3.style.textStyle.color = color
+  // 根据资源类型处理不同的颜色更新逻辑
+  if (props.resourceType.id === 7) {
+    // 发现页导航标签的颜色更新
+    const { coverImage1, coverImage3 } = props.resourceType.previewConfig.customElements
+    
+    // 更新主题色
+    coverImage1.themeColor = color
+    
+    // 更新背景渐变
+    const rgb = hexToRgb(color)
+    coverImage1.style.background = 
+      `linear-gradient(180deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.11) 0%, rgba(255, 255, 255, 0.5) 100%) white`
+    
+    // 更新文字颜色
+    if (coverImage3.style.textStyle) {
+      coverImage3.style.textStyle.color = color
+    }
+    // 同时更新 coverImage3 的主题色，确保状态同步
+    coverImage3.themeColor = color
+  } else if (props.resourceType.id === 5 || props.resourceType.id === 6) {
+    // 播客画布和动态播客画布的颜色更新
+    // 更新渐变颜色
+    props.resourceType.previewConfig.middleLayer.gradients.top.color = color
+    // 更新播客名称文字颜色
+    props.resourceType.previewConfig.customElements.podcastName.style.color = color
+    // 更新进度条 SVG 颜色
+    updateProgressBarColor(color)
   }
-  // 同时更新 coverImage3 的主题色，确保状态同步
-  coverImage3.themeColor = color
 }
 
 // 更新进度条 SVG 颜色
